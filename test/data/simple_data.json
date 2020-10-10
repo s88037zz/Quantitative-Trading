@@ -1,0 +1,26 @@
+{
+  "0": {
+    "name": "John",
+    "age": 19,
+    "sex": "man",
+    "height": 183
+  },
+  "1": {
+    "name": "Tom",
+    "age": 35,
+    "sex": "man",
+    "height": 174
+  },
+  "2": {
+    "name": "Tiffany",
+    "age": 21,
+    "sex": "female",
+    "height": 168
+  },
+  "3": {
+    "name": "Lisa",
+    "age": 25,
+    "sex": "female",
+    "height": 160
+  }
+}
