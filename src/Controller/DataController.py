@@ -2,9 +2,11 @@ from selenium import webdriver
 from selenium.webdriver import ActionChains
 import time, os
 
+
 class DataController(object):
     def __init__(self):
         self.url = "https://hk.investing.com/etfs/spdr-s-p-500-historical-data"
+        self.driver_path = os.path.abspath(os.path.join(os.path.pardir, 'src', 'chromedriver'))
         self.driver = self.getDriver()
         self.email = "s88037zz@gmail.com"
         self.passwd = 's88037zz'
@@ -20,7 +22,7 @@ class DataController(object):
         elem_email = self.driver.find_element_by_xpath("//*[@id='loginFormUser_email']")
         elem_passwd = self.driver.find_element_by_xpath("//*[@id='loginForm_password']")
         for elem in self.driver.find_elements_by_xpath("//a[@class='newButton orange']"):
-            if elem.text == '登入':
+            if elem.text == '登入' or elem.text == 'login':
                 elem_login_btn = elem
 
         # set user info and click login button
@@ -29,12 +31,13 @@ class DataController(object):
         self.driver.execute_script("arguments[0].click()", elem_login_btn)
         time.sleep(2)
 
+
     def hover(self, element):
         ActionChains(self.driver).move_to_element(element).perform()
 
     def getDriver(self):
         options = self.getChromeOptions()
-        driver = webdriver.Chrome(executable_path="./chromedriver", options=options)
+        driver = webdriver.Chrome(executable_path=self.driver_path, options=options)
         return driver
 
     def getChromeOptions(self):
@@ -58,23 +61,30 @@ class DataController(object):
         # download data
         elem_download = self.driver.find_element_by_xpath("//*[@title='下載數據']")
         elem_download.click()
-        while self.getDownloadProgres():
+        while self.getDownloadProgress():
             time.sleep(3)
-        self.driver.quit()
+        self.driver.get("chrome://downloads/")
+
+
 
         print("Download successfully")
 
-    def getDownloadProgres(self):
+    def getDownloadProgress(self):
         self.driver.get("chrome://downloads/")
         progress = self.driver.execute_script("""
-            var tag = document.querySelector('downloads-manager').shadowRoot;
-            var intag = tag.querySelector('downloads-item').shadowRoot;
-            var progress_tag = intag.getElementById('progress');
-            var progress = null;
-            if(progress_tag) {
-                progress = progress_tag.value;
+            try{
+                var tag = document.querySelector('downloads-manager').shadowRoot;
+                var intag = tag.querySelector('downloads-item').shadowRoot;
+                var progress_tag = intag.getElementById('progress');
+                var progress = null;
+                if(progress_tag) {
+                    progress = progress_tag.value;
+                }
+                 return progress;            
             }
-             return progress;
+            catch(e){
+                return null;
+            }
         """)
 
         return progress
