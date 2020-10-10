@@ -1,1 +1,4 @@
 .DS_Store
+/date/S&P500.csv
+.idea/
+/src/test.py
