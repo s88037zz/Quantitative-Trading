@@ -58,7 +58,26 @@ class DataController(object):
         # download data
         elem_download = self.driver.find_element_by_xpath("//*[@title='下載數據']")
         elem_download.click()
+        while self.getDownloadProgres():
+            time.sleep(3)
+        self.driver.quit()
+
         print("Download successfully")
+
+    def getDownloadProgres(self):
+        self.driver.get("chrome://downloads/")
+        progress = self.driver.execute_script("""
+            var tag = document.querySelector('downloads-manager').shadowRoot;
+            var intag = tag.querySelector('downloads-item').shadowRoot;
+            var progress_tag = intag.getElementById('progress');
+            var progress = null;
+            if(progress_tag) {
+                progress = progress_tag.value;
+            }
+             return progress;
+        """)
+
+        return progress
 
 
 if __name__ == '__main__':
