@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn
-from datetime import datetime
+from datetime import datetime, timedelta
 import pandas as pd
 import os, time
 
@@ -13,6 +13,8 @@ class DataProcessController(object):
         :param data: pd.Dataframe
         """
         self.data = None
+        self.date_format = "%Y年%m月%d日"
+
     """
     For main function that user call.
     """
@@ -42,19 +44,27 @@ class DataProcessController(object):
 
     def add_time_series(self):
         self.data['time_series'] = self.data.date.apply(
-            lambda date: time.mktime(datetime.strptime(date, "%Y年%m月%d日").timetuple()))
+            lambda date: time.mktime(datetime.strptime(date, self.date_format).timetuple()))
+
+    def add_5MA(self, date):
+        self.data["5MA"] = self.data.apply(
+            lambda data: self.get_avg_by_date(data.date, 5)[1])
+
+    def add_20MA(self, date):
+        self.data["20MA"] = self.data.apply(
+            lambda data: self.get_avg_by_date(data.date, 20)[1])
+
+    def add_60MA(self, date):
+        self.data["60MA"] = self.data.apply(
+            lambda data: self.get_avg_by_date(data.date, 60)[1])
 
     def get_data_summary(self):
         # get value summary need
         start_date = self.get_start_date()
         end_date = self.get_end_date()
-        avg_last7 = self.get_avg_last7()
-        avg_last30 = self.get_avg_last30()
-        avg_last90 = self.get_avg_last90()
 
         # update summary
-        summary = {"start_date": start_date, "end_date": end_date, "avg_last7": avg_last7,
-                   "avg_last30": avg_last30, 'avg_last90': avg_last90}
+        summary = {"start_date": start_date, "end_date": end_date}
 
         return summary
     """
@@ -67,23 +77,19 @@ class DataProcessController(object):
     def get_end_date(self):
         return self.data.date[self.data.time_series == max(self.data.time_series)].values[0]
 
-    def get_avg_last7(self):
-        pass
-    def get_avg_last30(self):
-        pass
-    def get_avg_last90(self):
-        pass
     """
     For function with useful and reuse.
     """
-    def get_avg_by_date(self, start, end):
-        date = self.data.date.apply(lambda d: datetime.strptime(d, "%Y年%m月%d日"))
-        data_in_range = self.data[np.logical_and(date < end, date > start)]
-        avg_open = np.average(data_in_range.open)
-        avg_close = np.average(data_in_range.close)
-        print("from {} to {}, avg open: {}, avg close: {}".format(start, end, avg_open, avg_close))
-        return avg_open, avg_close
+    def get_avg_by_date(self, date, delta):
+        date_index = int(np.where(self.data.date == date)[0][0])
+        print(delta, len(self.data) - date_index)
+        if delta > len(self.data) - date_index:
+            delta = len(self.data) - date_index
 
+        data = self.data.iloc[date_index: date_index+delta, :]
+        avg_open = np.average(data.open)
+        avg_close = np.average(data.close)
+        return avg_open, avg_close
 
 if __name__ == '__main__':
     data_path = os.path.abspath(os.path.join("..", "..", 'data', "SPY歷史資料.csv"))
@@ -91,3 +97,5 @@ if __name__ == '__main__':
     ctl = DataProcessController()
     ctl.load(data_path, 'csv')
     ctl.clean_data()
+    ctl.add_time_series()
+    ctl.get_avg_by_date("2020年9月10日", 10)
