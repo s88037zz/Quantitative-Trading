@@ -35,12 +35,12 @@ class DataController(object):
     def hover(self, element):
         ActionChains(self.driver).move_to_element(element).perform()
 
-    def getDriver(self):
-        options = self.getChromeOptions()
+    def get_driver(self):
+        options = self.get_chrome_options()
         driver = webdriver.Chrome(executable_path=self.driver_path, options=options)
         return driver
 
-    def getChromeOptions(self):
+    def get_chrome_options(self):
         download_dir = os.path.join(os.path.abspath(os.path.pardir), "data")
         options = webdriver.ChromeOptions()
         prefs = {'profile.default_content_settings.popups': 0,
@@ -49,7 +49,7 @@ class DataController(object):
         options.add_experimental_option('prefs', prefs)
         return options
 
-    def downlowSP500(self, start_date, end_date):
+    def downlow_SP500(self, start_date, end_date):
         self.driver.get(self.url)
         time.sleep(2)
 
@@ -93,4 +93,4 @@ class DataController(object):
 if __name__ == '__main__':
     dc = DataController()
     dc.login()
-    dc.downlowSP500('2020/01/01', '2020/10/09')
+    dc.downlow_SP500('2020/01/01', '2020/10/09')

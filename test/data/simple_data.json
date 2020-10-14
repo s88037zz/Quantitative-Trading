@@ -1,26 +1,20 @@
 {
   "0": {
-    "name": "John",
-    "age": 19,
-    "sex": "man",
-    "height": 183
+    "date": "2020年10月9日",
+    "close": "346.85",
+    "open": "345.58",
+    "high": "347.35",
+    "low": "344.90",
+    "volume": "59.53M",
+    "change": "0.89%"
   },
-  "1": {
-    "name": "Tom",
-    "age": 35,
-    "sex": "man",
-    "height": 174
-  },
-  "2": {
-    "name": "Tiffany",
-    "age": 21,
-    "sex": "female",
-    "height": 168
-  },
-  "3": {
-    "name": "Lisa",
-    "age": 25,
-    "sex": "female",
-    "height": 160
+  "0": {
+    "date": "2020年10月8日",
+    "close": "343.78",
+    "open": "342.84",
+    "high": "343.84",
+    "low": "341.89",
+    "volume": "45.24M",
+    "change": "0.89%"
   }
 }

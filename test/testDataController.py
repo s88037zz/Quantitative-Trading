@@ -16,7 +16,7 @@ class TestDataController(unittest.TestCase):
 
     def testDonwloadSP500(self):
         self.controller.login()
-        self.controller.downlowSP500("2019/01/01", "2020/01/01")
+        self.controller.downlow_SP500("2019/01/01", "2020/01/01")
 
         self.driver.get("chrome://downloads/")
         item = self.driver.execute_script("""
