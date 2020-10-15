@@ -47,6 +47,27 @@ class TestPlotController(unittest.TestCase):
         length = len(self.ctl.data["time_series"])
         self.assertTrue(length)
 
+    def testAdd5MA(self):
+        self.ctl.clean_data()
+        self.ctl.add_time_series()
+        self.ctl.add_5MA()
+
+        self.assertTrue(len(self.ctl.data["5MA"]) != 0)
+
+    def testAdd20MA(self):
+        self.ctl.clean_data()
+        self.ctl.add_time_series()
+        self.ctl.add_20MA()
+
+        self.assertTrue(len(self.ctl.data["20MA"]) != 0)
+
+    def testAdd60(self):
+        self.ctl.clean_data()
+        self.ctl.add_time_series()
+        self.ctl.add_60MA()
+
+        self.assertTrue(len(self.ctl.data["60MA"]) != 0)
+
     def testCleanData(self):
         bef_row, bef_col = self.ctl.data.shape
         self.ctl.clean_data()

@@ -1,6 +1,4 @@
 import numpy as np
-import matplotlib.pyplot as plt
-import seaborn
 from datetime import datetime, timedelta
 import pandas as pd
 import os, time
@@ -15,9 +13,18 @@ class DataProcessController(object):
         self.data = None
         self.date_format = "%Y年%m月%d日"
 
+
     """
     For main function that user call.
     """
+    def process(self, path, type):
+        self.load(path, type)
+        self.clean_data()
+        self.add_time_series()
+        self.add_5MA()
+        self.add_20MA()
+        self.add_60MA()
+
     def load(self, path, type):
         if type == "csv":
             self.data = pd.read_csv(path)
@@ -46,17 +53,17 @@ class DataProcessController(object):
         self.data['time_series'] = self.data.date.apply(
             lambda date: time.mktime(datetime.strptime(date, self.date_format).timetuple()))
 
-    def add_5MA(self, date):
+    def add_5MA(self):
         self.data["5MA"] = self.data.apply(
-            lambda data: self.get_avg_by_date(data.date, 5)[1])
+            lambda data: self.get_avg_by_date(data.date, 5)[1], axis=1)
 
-    def add_20MA(self, date):
+    def add_20MA(self):
         self.data["20MA"] = self.data.apply(
-            lambda data: self.get_avg_by_date(data.date, 20)[1])
+            lambda data: self.get_avg_by_date(data.date, 20)[1], axis=1)
 
-    def add_60MA(self, date):
+    def add_60MA(self):
         self.data["60MA"] = self.data.apply(
-            lambda data: self.get_avg_by_date(data.date, 60)[1])
+            lambda data: self.get_avg_by_date(data.date, 60)[1], axis=1)
 
     def get_data_summary(self):
         # get value summary need
@@ -67,10 +74,10 @@ class DataProcessController(object):
         summary = {"start_date": start_date, "end_date": end_date}
 
         return summary
+
     """
     For information of summary.
     """
-
     def get_start_date(self):
         return self.data.date[self.data.time_series == min(self.data.time_series)].values[0]
 
@@ -82,7 +89,6 @@ class DataProcessController(object):
     """
     def get_avg_by_date(self, date, delta):
         date_index = int(np.where(self.data.date == date)[0][0])
-        print(delta, len(self.data) - date_index)
         if delta > len(self.data) - date_index:
             delta = len(self.data) - date_index
 
@@ -93,9 +99,13 @@ class DataProcessController(object):
 
 if __name__ == '__main__':
     data_path = os.path.abspath(os.path.join("..", "..", 'data', "SPY歷史資料.csv"))
-    print(data_path)
     ctl = DataProcessController()
-    ctl.load(data_path, 'csv')
-    ctl.clean_data()
-    ctl.add_time_series()
-    ctl.get_avg_by_date("2020年9月10日", 10)
+
+    ctl.process(data_path, 'csv')
+    data = ctl.data
+    print(data.head())
+
+    # ctl.load(data_path, 'csv')
+    # ctl.clean_data()
+    # ctl.add_time_series()
+    # ctl.get_avg_by_date("2020年9月10日", 10)
