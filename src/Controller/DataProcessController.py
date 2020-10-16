@@ -10,9 +10,47 @@ class DataProcessController(object):
         Initialize  PlotController
         :param data: pd.Dataframe
         """
-        self.data = None
-        self.date_format = "%Y年%m月%d日"
+        self._data = None
+        self._date_format = "%Y年%m月%d日"
+        self._summary = None
+        self._start_date = None
+        self._end_date = None
 
+    """
+    For getter and setter
+    """
+
+    @property
+    def data(self):
+        return self._data
+
+    @property
+    def summary(self):
+        # update summary
+        self._summary = {"start_date": self.start_date, "end_date": self.end_date}
+        return self._summary
+
+    @property
+    def start_date(self):
+        self._start_date = self.data.date[self.data.time_series == min(self.data.time_series)].values[0]
+        return self._start_date
+
+    @property
+    def end_date(self):
+        self._end_date = self.data.date[self.data.time_series == max(self.data.time_series)].values[0]
+        return self._end_date
+
+    @property
+    def ma5(self):
+        return self.data['5MA']
+
+    @property
+    def ma20(self):
+        return self.data['20MA']
+
+    @property
+    def ma60(self):
+        return self.data['60MA']
 
     """
     For main function that user call.
@@ -24,12 +62,13 @@ class DataProcessController(object):
         self.add_5MA()
         self.add_20MA()
         self.add_60MA()
+        self.add_datetime()
 
     def load(self, path, type):
         if type == "csv":
-            self.data = pd.read_csv(path)
+            self._data = pd.read_csv(path)
         elif type == "json":
-            self.data = pd.read_json(path)
+            self._data = pd.read_json(path)
         else:
             raise Exception("Loading process not support {}".format(type))
 
@@ -37,7 +76,7 @@ class DataProcessController(object):
         columns_map = {'日期': 'date', '收市': 'close', '開市': 'open', '高': 'high',
                        '低': 'low', '成交量': 'volume', '更改%': 'change'}
         # change columns name:
-        self.data = self.data.rename(columns=columns_map)
+        self._data = self.data.rename(columns=columns_map)
         print(self.data.columns)
 
         # remove % in change
@@ -47,42 +86,26 @@ class DataProcessController(object):
         self.data.volume = self.data.volume.apply(lambda value: value.replace('M', ""))
 
         # remove the rest day in data frame
-        self.data = self.data[self.data.volume != '-']
+        self._data = self.data[self.data.volume != '-']
+
+    def add_datetime(self):
+        self.data['datetime'] = self.data.apply(lambda d: datetime.strptime(d.date, self._date_format), axis=1)
 
     def add_time_series(self):
         self.data['time_series'] = self.data.date.apply(
-            lambda date: time.mktime(datetime.strptime(date, self.date_format).timetuple()))
+            lambda d: time.mktime(datetime.strptime(d, self._date_format).timetuple()))
 
     def add_5MA(self):
         self.data["5MA"] = self.data.apply(
-            lambda data: self.get_avg_by_date(data.date, 5)[1], axis=1)
+            lambda d: self.get_avg_by_date(d.date, 5)[1], axis=1)
 
     def add_20MA(self):
         self.data["20MA"] = self.data.apply(
-            lambda data: self.get_avg_by_date(data.date, 20)[1], axis=1)
+            lambda d: self.get_avg_by_date(d.date, 20)[1], axis=1)
 
     def add_60MA(self):
         self.data["60MA"] = self.data.apply(
-            lambda data: self.get_avg_by_date(data.date, 60)[1], axis=1)
-
-    def get_data_summary(self):
-        # get value summary need
-        start_date = self.get_start_date()
-        end_date = self.get_end_date()
-
-        # update summary
-        summary = {"start_date": start_date, "end_date": end_date}
-
-        return summary
-
-    """
-    For information of summary.
-    """
-    def get_start_date(self):
-        return self.data.date[self.data.time_series == min(self.data.time_series)].values[0]
-
-    def get_end_date(self):
-        return self.data.date[self.data.time_series == max(self.data.time_series)].values[0]
+            lambda d: self.get_avg_by_date(d.date, 60)[1], axis=1)
 
     """
     For function with useful and reuse.
@@ -97,6 +120,7 @@ class DataProcessController(object):
         avg_close = np.average(data.close)
         return avg_open, avg_close
 
+
 if __name__ == '__main__':
     data_path = os.path.abspath(os.path.join("..", "..", 'data', "SPY歷史資料.csv"))
     ctl = DataProcessController()
@@ -105,7 +129,4 @@ if __name__ == '__main__':
     data = ctl.data
     print(data.head())
 
-    # ctl.load(data_path, 'csv')
-    # ctl.clean_data()
-    # ctl.add_time_series()
-    # ctl.get_avg_by_date("2020年9月10日", 10)
+    print(ctl.data['datetime'])

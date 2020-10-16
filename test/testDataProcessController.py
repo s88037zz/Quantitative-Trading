@@ -36,7 +36,7 @@ class TestPlotController(unittest.TestCase):
         self.ctl.clean_data()
         self.ctl.add_time_series()
 
-        summary = self.ctl.get_data_summary()
+        summary = self.ctl.summary
         self.assertEqual(summary["start_date"], "2020年9月28日")
         self.assertEqual(summary['end_date'], "2020年10月9日")
 
@@ -47,26 +47,26 @@ class TestPlotController(unittest.TestCase):
         length = len(self.ctl.data["time_series"])
         self.assertTrue(length)
 
-    def testAdd5MA(self):
+    def testAdd5MAAndGet5MA(self):
         self.ctl.clean_data()
         self.ctl.add_time_series()
         self.ctl.add_5MA()
 
-        self.assertTrue(len(self.ctl.data["5MA"]) != 0)
+        self.assertTrue(len(self.ctl.ma5) != 0)
 
-    def testAdd20MA(self):
+    def testAdd20MAAnd20MA(self):
         self.ctl.clean_data()
         self.ctl.add_time_series()
         self.ctl.add_20MA()
 
-        self.assertTrue(len(self.ctl.data["20MA"]) != 0)
+        self.assertTrue(len(self.ctl.ma20) != 0)
 
-    def testAdd60(self):
+    def testAdd60And60MA(self):
         self.ctl.clean_data()
         self.ctl.add_time_series()
         self.ctl.add_60MA()
 
-        self.assertTrue(len(self.ctl.data["60MA"]) != 0)
+        self.assertTrue(len(self.ctl.ma60) != 0)
 
     def testCleanData(self):
         bef_row, bef_col = self.ctl.data.shape
@@ -88,7 +88,7 @@ class TestPlotController(unittest.TestCase):
         # prepare model
         self.ctl.clean_data()
         self.ctl.add_time_series()
-        summary = self.ctl.get_data_summary()
+        summary = self.ctl.summary
         start = summary['start_date']
 
         # test date is enough to find last 10 days
