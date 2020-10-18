@@ -8,8 +8,7 @@ class TestPlotController(unittest.TestCase):
         path = os.path.join('.', 'data', 'simple_data.csv')
         self.ctl = DataProcessController()
         self.ctl.process(path, 'csv')
-        data = self.ctl.data
-        self.pc = PlotController(data)
+        self.pc = PlotController(self.ctl.data)
 
     def testCreateFigure(self):
         self.pc.create_figure(xlabel='Date', ylabel='Price')
@@ -26,3 +25,11 @@ class TestPlotController(unittest.TestCase):
 
     def testShow(self):
         self.pc.show()
+
+    def testIntegrativeFunction(self):
+        self.pc.create_figure(xlabel='Date', ylabel='Price')
+        self.pc.plot_MA('5MA')
+        self.pc.plot_MA('20MA')
+        self.pc.plot_MA('60MA')
+        self.pc.show()
+

@@ -16,7 +16,6 @@ class TestPlotController(unittest.TestCase):
         self.assertIsNotNone(self.ctl.data)
 
         # test load json data
-        self.ctl.data = None
         test_json_path = os.path.join('.', 'data', 'simple_data.json')
         print("test_json_path:", test_json_path)
         self.ctl.load(test_json_path, 'json')
@@ -100,3 +99,12 @@ class TestPlotController(unittest.TestCase):
         avg_open, avg_close = self.ctl.get_avg_by_date("2020年9月30日", 10)
         self.assertAlmostEqual(333.4833, avg_open, places=3)
         self.assertAlmostEqual(333.8166, avg_close, places=3)
+
+    def testProcess(self):
+        self.ctl.process(os.path.join('.', 'data', 'simple_data.csv'), type='csv')
+        data = self.ctl.data
+        print(data.head())
+        self.assertTrue(data.time_series.iloc[0] < data.time_series.iloc[1])
+        self.assertTrue(len(self.ctl.ma5) != 0)
+        self.assertTrue(len(self.ctl.ma20) != 0)
+        self.assertTrue(len(self.ctl.ma60) != 0)

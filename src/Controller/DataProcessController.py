@@ -59,10 +59,12 @@ class DataProcessController(object):
         self.load(path, type)
         self.clean_data()
         self.add_time_series()
+        self.sorted_by_time_series()
         self.add_5MA()
         self.add_20MA()
         self.add_60MA()
         self.add_datetime()
+
 
     def load(self, path, type):
         if type == "csv":
@@ -88,6 +90,9 @@ class DataProcessController(object):
         # remove the rest day in data frame
         self._data = self.data[self.data.volume != '-']
 
+    def sorted_by_time_series(self):
+        self._data = self._data.sort_values(by=['time_series'], ascending=True)
+        self._data = self._data.reset_index()
     def add_datetime(self):
         self.data['datetime'] = self.data.apply(lambda d: datetime.strptime(d.date, self._date_format), axis=1)
 
