@@ -17,14 +17,14 @@ class TestPlotController(unittest.TestCase):
         self.pc_ctl.create_figure(xlabel='Date', ylabel='Price')
 
     def testPlotMA(self):
-        self.pc_ctl.plot_MA('5MA')
-        self.pc_ctl.plot_MA('20MA')
-        self.pc_ctl.plot_MA('60MA')
-
         try:
             self.pc_ctl.plot_MA("test")
         except Exception as e:
             self.assertEqual("Plot Controller: plot_MA not support (type: test)", e.args[0])
+
+        self.pc_ctl.plot_MA('5MA')
+        self.pc_ctl.plot_MA('20MA')
+        self.pc_ctl.plot_MA('60MA')
 
     def testShow(self):
         self.pc_ctl.show()
@@ -36,16 +36,34 @@ class TestPlotController(unittest.TestCase):
 
         self.pc_ctl.plot_prices_trend(prices, datetimes, trend)
 
-    def testIntegrativeFunction(self):
-        self.pc_ctl.create_figure(xlabel='Date', ylabel='Price')
-        self.pc_ctl.plot_MA('5MA')
-        self.pc_ctl.plot_MA('20MA')
-        self.pc_ctl.plot_MA('60MA')
-        self.pc_ctl.show()
+    def testPlotRelativeOfPrices(self):
+        prices = self.dp_ctl.data['close']
+        ma5 = self.dp_ctl.data['5MA']
+        datetimes = self.dp_ctl.data['datetimes']
+        self.pc_ctl.plot_relative_of_prices_with_ref(prices, ma5, datetimes)
 
-        self.pc_ctl.create_figure("Date", ylabel='Price')
-        da_ctl = DataAnalysisController(self.dp_ctl.data)
-        prices = self.dp_ctl.data['5MA']
+    def testIntegrativeFunction(self):
+        # Initialize
+        prices = self.dp_ctl.data['close']
+        ma5 = self.dp_ctl.data['60MA']
         datetimes = self.dp_ctl.data['datetime']
-        trend_labels = da_ctl.get_trend_labels(prices, datetimes)
-        self.pc_ctl.plot_prices_trend(prices, datetimes, trend_labels)
+
+        # self.pc_ctl.create_figure(xlabel='Date', ylabel='Price')
+        # self.pc_ctl.plot_prices(prices, datetimes, 'close')
+        # self.pc_ctl.plot_MA('5MA')
+        # self.pc_ctl.plot_MA('20MA')
+        # self.pc_ctl.plot_MA('60MA')
+        # self.pc_ctl.show()
+
+        # self.pc_ctl.create_figure(xlabel="Date", ylabel='Price')
+        # trend_labels = self.da_ctl.get_trend_labels(prices, datetimes)
+        # self.pc_ctl.plot_prices_trend(prices, datetimes, trend_labels)
+        # self.pc_ctl.show()
+
+        # self.pc_ctl.create_figure(xlabel="Date", ylabel='Price')
+        # self.pc_ctl.plot_prices_with_ref(prices, datetimes, ma5)
+        # self.pc_ctl.show()
+
+        self.pc_ctl.create_figure(xlabel="Date", ylabel='Price')
+        self.pc_ctl.plot_relative_of_prices_with_ref(prices, ma5, datetimes)
+        self.pc_ctl.show()

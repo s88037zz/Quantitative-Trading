@@ -6,8 +6,9 @@ import time, os
 class DataController(object):
     def __init__(self):
         self.url = "https://hk.investing.com/etfs/spdr-s-p-500-historical-data"
-        self.driver_path = os.path.abspath(os.path.join(os.path.pardir, 'src', 'chromedriver'))
-        self.driver = self.getDriver()
+        self.save_path = os.path.join(os.path.abspath(os.path.pardir), "data")
+        self.driver_path = os.path.abspath(os.path.join(os.path.pardir, 'chromedriver'))
+        self.driver = self.get_driver()
         self.email = "s88037zz@gmail.com"
         self.passwd = 's88037zz'
 
@@ -41,10 +42,9 @@ class DataController(object):
         return driver
 
     def get_chrome_options(self):
-        download_dir = os.path.join(os.path.abspath(os.path.pardir), "data")
         options = webdriver.ChromeOptions()
         prefs = {'profile.default_content_settings.popups': 0,
-                 'download.default_directory': download_dir,
+                 'download.default_directory': self.save_path,
                  'directory_upgrade': True}
         options.add_experimental_option('prefs', prefs)
         return options

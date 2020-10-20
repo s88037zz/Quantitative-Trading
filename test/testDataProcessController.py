@@ -91,11 +91,21 @@ class TestPlotController(unittest.TestCase):
         start = summary['start_date']
 
         # test date is enough to find last 10 days
-        avg_open, avg_close = self.ctl.get_avg_by_date(start, 10)
+        avg_open, avg_close = self.ctl.get_avg_by_date(start, 5)
         self.assertEqual(333.38, avg_open)
         self.assertEqual(334.19, avg_close)
-        # test date isn't enough to find last 10 days
+        #
+        # test date is enough to find last 10 days
+        avg_open, avg_close = self.ctl.get_avg_by_date(start, 20)
+        self.assertEqual(333.38, avg_open)
+        self.assertEqual(334.19, avg_close)
 
+        # test date is enough to find last 10 days
+        avg_open, avg_close = self.ctl.get_avg_by_date(start, 60)
+        self.assertEqual(333.38, avg_open)
+        self.assertEqual(334.19, avg_close)
+
+        # test date isn't enough to find last 10 days
         avg_open, avg_close = self.ctl.get_avg_by_date("2020年9月30日", 10)
         self.assertAlmostEqual(333.4833, avg_open, places=3)
         self.assertAlmostEqual(333.8166, avg_close, places=3)
