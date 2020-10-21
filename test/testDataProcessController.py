@@ -36,8 +36,8 @@ class TestPlotController(unittest.TestCase):
         self.ctl.add_time_series()
 
         summary = self.ctl.summary
-        self.assertEqual(summary["start_date"], "2020年9月28日")
-        self.assertEqual(summary['end_date'], "2020年10月9日")
+        self.assertEqual("2020年1月2日", summary["start_date"])
+        self.assertEqual("2020年10月9日", summary['end_date'])
 
     def testAddTimeSeries(self):
         self.ctl.clean_data()
@@ -88,27 +88,27 @@ class TestPlotController(unittest.TestCase):
         self.ctl.clean_data()
         self.ctl.add_time_series()
         summary = self.ctl.summary
-        start = summary['start_date']
+        end_date = summary['end_date']
 
         # test date is enough to find last 10 days
-        avg_open, avg_close = self.ctl.get_avg_by_date(start, 5)
-        self.assertEqual(333.38, avg_open)
-        self.assertEqual(334.19, avg_close)
-        #
-        # test date is enough to find last 10 days
-        avg_open, avg_close = self.ctl.get_avg_by_date(start, 20)
-        self.assertEqual(333.38, avg_open)
-        self.assertEqual(334.19, avg_close)
+        avg_open, avg_close = self.ctl.get_avg_by_date(end_date, 5)
+        self.assertAlmostEqual(340.538, avg_open, places=3)
+        self.assertAlmostEqual(341.216, avg_close, places=3)
 
         # test date is enough to find last 10 days
-        avg_open, avg_close = self.ctl.get_avg_by_date(start, 60)
-        self.assertEqual(333.38, avg_open)
-        self.assertEqual(334.19, avg_close)
+        avg_open, avg_close = self.ctl.get_avg_by_date(end_date, 20)
+        self.assertAlmostEqual(334.5020, avg_open, places=3)
+        self.assertAlmostEqual(334.7245, avg_close, places=3)
+
+        # test date is enough to find last 10 days
+        avg_open, avg_close = self.ctl.get_avg_by_date(end_date, 60)
+        self.assertAlmostEqual(335.085, avg_open, places=3)
+        self.assertAlmostEqual(335.1525, avg_close, places=3)
 
         # test date isn't enough to find last 10 days
         avg_open, avg_close = self.ctl.get_avg_by_date("2020年9月30日", 10)
-        self.assertAlmostEqual(333.4833, avg_open, places=3)
-        self.assertAlmostEqual(333.8166, avg_close, places=3)
+        self.assertAlmostEqual(329.8, avg_open, places=3)
+        self.assertAlmostEqual(330.008, avg_close, places=3)
 
     def testProcess(self):
         self.ctl.process(os.path.join('.', 'data', 'simple_data.csv'), type='csv')

@@ -48,12 +48,12 @@ class TestPlotController(unittest.TestCase):
         ma5 = self.dp_ctl.data['60MA']
         datetimes = self.dp_ctl.data['datetime']
 
-        # self.pc_ctl.create_figure(xlabel='Date', ylabel='Price')
-        # self.pc_ctl.plot_prices(prices, datetimes, 'close')
-        # self.pc_ctl.plot_MA('5MA')
-        # self.pc_ctl.plot_MA('20MA')
-        # self.pc_ctl.plot_MA('60MA')
-        # self.pc_ctl.show()
+        self.pc_ctl.create_figure(xlabel='Date', ylabel='Price')
+        self.pc_ctl.plot_prices(prices, datetimes, 'close')
+        self.pc_ctl.plot_MA('5MA')
+        self.pc_ctl.plot_MA('20MA')
+        self.pc_ctl.plot_MA('60MA')
+        self.pc_ctl.show()
 
         # self.pc_ctl.create_figure(xlabel="Date", ylabel='Price')
         # trend_labels = self.da_ctl.get_trend_labels(prices, datetimes)
@@ -64,6 +64,6 @@ class TestPlotController(unittest.TestCase):
         # self.pc_ctl.plot_prices_with_ref(prices, datetimes, ma5)
         # self.pc_ctl.show()
 
-        self.pc_ctl.create_figure(xlabel="Date", ylabel='Price')
-        self.pc_ctl.plot_relative_of_prices_with_ref(prices, ma5, datetimes)
-        self.pc_ctl.show()
+        # self.pc_ctl.create_figure(xlabel="Date", ylabel='Price')
+        # self.pc_ctl.plot_relative_of_prices_with_ref(prices, ma5, datetimes)
+        # self.pc_ctl.show()
