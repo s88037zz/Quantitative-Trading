@@ -6,7 +6,7 @@ import time, os
 class DataController(object):
     def __init__(self):
         self.url = "https://hk.investing.com/etfs/spdr-s-p-500-historical-data"
-        self.save_path = os.path.join(os.path.abspath(os.path.pardir), "data")
+        self.save_path = os.path.abspath(os.path.join("..", "..", "data"))
         self.driver_path = os.path.abspath(os.path.join(os.path.pardir, 'chromedriver'))
         self.driver = self.get_driver()
         self.email = "s88037zz@gmail.com"
@@ -32,7 +32,6 @@ class DataController(object):
         self.driver.execute_script("arguments[0].click()", elem_login_btn)
         time.sleep(2)
 
-
     def hover(self, element):
         ActionChains(self.driver).move_to_element(element).perform()
 
@@ -53,10 +52,22 @@ class DataController(object):
         self.driver.get(self.url)
         time.sleep(2)
 
-        # change date range we download
-        elem_date_range = self.driver.find_element_by_xpath("//*[@id='widgetFieldDateRange']")
-        date_range = " - ".join((start_date, end_date))
-        self.driver.execute_script("arguments[0].innerText = {}".format(date_range), elem_date_range)
+        # open the date window
+        elem_date_picker = self.driver.find_elements_by_xpath("//*[@id='datePickerIconWrap']")[1]
+        self.driver.execute_script("arguments[0].click();", elem_date_picker)
+
+        # change the start and end date
+        elem_start_date = self.driver.find_element_by_xpath("//*[@id='startDate']")
+        elem_start_date.clear()
+        elem_start_date.send_keys(start_date)
+        elem_end_date = self.driver.find_element_by_xpath("//*[@id='endDate']")
+        elem_end_date.clear()
+        elem_end_date.send_keys(end_date)
+        time.sleep(2)
+        elem_apply = self.driver.find_element_by_xpath("//*[@id='a"
+                                                       "pplyBtn']")
+        elem_apply.click()
+        time.sleep(2)
 
         # download data
         elem_download = self.driver.find_element_by_xpath("//*[@title='下載數據']")
@@ -64,9 +75,6 @@ class DataController(object):
         while self.getDownloadProgress():
             time.sleep(3)
         self.driver.get("chrome://downloads/")
-
-
-
         print("Download successfully")
 
     def getDownloadProgress(self):
