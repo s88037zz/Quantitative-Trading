@@ -42,6 +42,9 @@ class TestPlotController(unittest.TestCase):
         datetimes = self.dp_ctl.data['datetimes']
         self.pc_ctl.plot_relative_of_prices_with_ref(prices, ma5, datetimes)
 
+    def testPlotVolume(self):
+        self.pc_ctl.plot_volume()
+
     def testIntegrativeFunction(self):
         # Initialize
         prices = self.dp_ctl.data['close']

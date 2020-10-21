@@ -50,6 +50,31 @@ class PlotController():
             plt.plot(x, [detail_prices[i-1], detail_prices[i]], c=c, label=price_name)
             plt.plot(x, [detail_ref[i-1], detail_ref[i]], c='b', label=ref_name)
 
+    def plot_volume(self, start_datetime=None, end_datetime=None, trend=None):
+        datetimes = self.data["datetime"]
+        volume = self.data['volume']
+        prices = self.data['close']
+        trend = self.da_ctl.get_trend_labels(prices, datetimes)
+        if start_datetime is None:
+            start_index = 0
+        else:
+            start_index = np.where(self.data['datetime'] == start_datetime)[0]
+
+        if end_datetime is None:
+            end_index = len(datetimes)
+        else:
+            end_index = np.where(self.data['datetime'] == end_datetime)[0]
+
+
+        trend = trend[start_index:end_index]
+        volume = volume[start_index:end_index]
+        datetimes = datetimes[start_index:end_index]
+        color = ['red' if t == 1 else 'green' for t in trend]
+
+        print(min(volume), max(volume))
+        plt.bar(datetimes, volume, color=color)
+        plt.yticks(np.arange(0, max(volume), 100))
+
     def show(self):
         plt.xticks(rotation=45)
         plt.legend(loc='best')
@@ -69,16 +94,21 @@ if __name__ == '__main__':
     datetimes = dp_ctl.data['datetime']
 
     # plot 5MA, 20MA, 60MA
-    pc.create_figure(xlabel='Date', ylabel='Price')
-    pc.plot_prices(prices, datetimes, label='close')
+    # pc.create_figure(xlabel='Date', ylabel='Price')
+    # pc.plot_prices(prices, datetimes, label='close')
     # pc.plot_MA("5MA")
-    pc.plot_MA("20MA")
-    pc.plot_MA("60MA")
-    pc.show()
+    # pc.plot_MA("20MA")
+    # pc.plot_MA("60MA")
+    # pc.show()
 
     # plot prices trend
     # trend = da_ctl.get_trend_labels(prices, datetimes)
     # pc.create_figure(xlabel='Date', ylabel='Price')
     # pc.plot_prices_trend(prices, datetimes, trend)
     # pc.show()
+
+    # plot volume
+    pc.create_figure(xlabel='Date', ylabel='Volume')
+    pc.plot_volume()
+    pc.show()
 

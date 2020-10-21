@@ -84,7 +84,7 @@ class DataProcessController(object):
         self.data.change = self.data.change.apply(lambda value: value.replace('%', ''))
 
         # remove M in volume
-        self.data.volume = self.data.volume.apply(lambda value: value.replace('M', ""))
+        self.data.volume = self.data.volume.apply(lambda value: float(value.replace('M', "")))
 
         # remove the rest day in data frame
         self._data = self.data[self.data.volume != '-']
