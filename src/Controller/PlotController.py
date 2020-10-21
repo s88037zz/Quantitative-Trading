@@ -49,7 +49,6 @@ class PlotController():
             x = [detail_datetimes[i - 1], detail_datetimes[i]]
             plt.plot(x, [detail_prices[i-1], detail_prices[i]], c=c, label=price_name)
             plt.plot(x, [detail_ref[i-1], detail_ref[i]], c='b', label=ref_name)
-        plt.legend(detail_prices, ['price'])
 
     def show(self):
         plt.xticks(rotation=45)
