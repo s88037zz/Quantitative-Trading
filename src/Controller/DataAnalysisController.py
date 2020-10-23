@@ -95,6 +95,7 @@ if __name__ == '__main__':
     import os
     # preparing
     path = os.path.abspath(os.path.join("..", "..", 'data', "SPY歷史資料.csv"))
+    # path= os.path.abspath(os.path.join("..", "..", 'data', "SPY歷史資料 (3 months).csv"))
     dp_ctl = DataProcessController()
     dp_ctl.process(path, 'csv')
 

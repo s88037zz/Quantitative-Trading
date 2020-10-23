@@ -101,4 +101,4 @@ class DataController(object):
 if __name__ == '__main__':
     dc = DataController()
     dc.login()
-    dc.downlow_SP500('1970/01/01', '2020/10/21')
+    dc.downlow_SP500('2020/07/01', '2020/10/01')

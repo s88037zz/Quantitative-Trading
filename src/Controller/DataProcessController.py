@@ -80,14 +80,23 @@ class DataProcessController(object):
         self._data = self.data.rename(columns=columns_map)
         print(self.data.columns)
 
-        # remove % in change
-        self.data.change = self.data.change.apply(lambda value: value.replace('%', ''))
+        # change type of value
+        self._data.close = self.data.close.apply(lambda value: float(value))
+        self._data.open = self.data.open.apply(lambda value: float(value))
+        self._data.high = self.data.high.apply(lambda value: float(value))
+        self._data.low = self.data.low.apply(lambda value: float(value))
 
-        # remove M in volume
-        self.data.volume = self.data.volume.apply(lambda value: float(value.replace('M', "")))
+        # remove % in change and change type of value
+        self._data.change = self.data.change.apply(lambda value: float(value.replace('%', '')))
 
         # remove the rest day in data frame
         self._data = self.data[self.data.volume != '-']
+
+        # remove M in volume
+        self._data.volume = self.data.volume.apply(lambda value: float(value.replace('M', "")))
+
+
+
 
     def sorted_by_time_series(self):
         self._data = self._data.sort_values(by=['time_series'], ascending=True)

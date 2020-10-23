@@ -20,6 +20,8 @@ class PlotController():
             plt.xlabel(kwargs['xlabel'])
         if 'ylabel' in kwargs.keys():
             plt.ylabel(kwargs['ylabel'])
+        if 'title' in kwargs.keys():
+            plt.title(kwargs['title'])
 
     def plot_prices(self, his_prices, datetimes, label=None):
         plt.plot(datetimes, his_prices, label=label)
@@ -70,8 +72,6 @@ class PlotController():
         volume = volume[start_index:end_index]
         datetimes = datetimes[start_index:end_index]
         color = ['red' if t == 1 else 'green' for t in trend]
-
-        print(min(volume), max(volume))
         plt.bar(datetimes, volume, color=color)
         plt.yticks(np.arange(0, max(volume), 100))
 
@@ -108,7 +108,7 @@ if __name__ == '__main__':
     # pc.show()
 
     # plot volume
-    pc.create_figure(xlabel='Date', ylabel='Volume')
+    pc.create_figure(xlabel='Date', ylabel='Volume', title='Volume Trend')
     pc.plot_volume()
     pc.show()
 

@@ -11,42 +11,18 @@ class TestDataAnalysisController(unittest.TestCase):
 
         self.da_ctl = DataAnalysisController(self.dp_ctl.data)
 
-    # def testGetRaiseAndFallRange(self):
-    #     datetimes = self.dp_ctl.data['datetime']
-    #     prices = self.dp_ctl.data['close']
-    #     raising_ranges = self.da_ctl.get_raising_date(prices, datetimes)
-    #     raising_range_ans = [[datetimes[1], datetimes[3]], [datetimes[4], datetimes[5]],
-    #     [datetimes[6], datetimes[9]]]
-    #
-    #     # test raising range
-    #     for raising_range, ans in zip(raising_ranges, raising_range_ans):
-    #         # 0: start date, 1: end date
-    #         self.assertEqual(ans[0], raising_range[0])
-    #         self.assertEqual(ans[1], raising_range[1])
-    #
-    #     # # test falling range
-    #     falling_ranges = self.da_ctl.get_falling_date(prices, datetimes)
-    #     falling_range_ans = [[datetimes[0], datetimes[1]],
-    #                          [datetimes[3], datetimes[4]],
-    #                          [datetimes[5], datetimes[6]]]
-    #
-    #     for falling_range, ans in zip(falling_ranges, falling_range_ans):
-    #         #  0: start date, 1: end date
-    #         self.assertEqual(falling_range[0], ans[0])
-    #         self.assertEqual(falling_range[1], ans[1])
-
     def testGetRaisingLabels(self):
         datetimes = self.dp_ctl.data['datetime']
         prices = self.dp_ctl.data['close']
         raising_trend = self.da_ctl.get_raising_labels(prices, datetimes)
-        self.assertEqual(6,  np.count_nonzero(raising_trend == 1))
+        self.assertEqual(42,  np.count_nonzero(raising_trend == 1))
 
     def testGetFallingLabels(self):
         datetimes = self.dp_ctl.data['datetime']
         prices = self.dp_ctl.data['close']
         falling_trend = self.da_ctl.get_falling_labels(prices, datetimes)
         print(falling_trend)
-        self.assertEqual(3, np.count_nonzero(falling_trend == -1))
+        self.assertEqual(22, np.count_nonzero(falling_trend == -1))
 
     def testGetTrendLabels(self):
         datetimes = self.dp_ctl.data['datetime']
@@ -56,11 +32,11 @@ class TestDataAnalysisController(unittest.TestCase):
         self.assertEqual(3, np.count_nonzero(trend == -1))
 
     def testGetRelativeOfPrices(self):
-        prices = self.dp_ctl.data['close']
-        ma5 = self.dp_ctl.data['5MA']
+        prices = [100, 50, 10, 5, 10]
+        ma5 = [200, 100, 5, 1, 0]
         relative = self.da_ctl.get_relative_of_prices(prices, ma5)
         print(relative)
-        ans = [-1, -1, -1, -1, -1, -1, -1, -1, -1, 1]
+        ans = [-1, -1, 1, 1, 1]
         for r, a in zip(relative, ans):
             self.assertEqual(r, a)
 

@@ -36,8 +36,8 @@ class TestPlotController(unittest.TestCase):
         self.ctl.add_time_series()
 
         summary = self.ctl.summary
-        self.assertEqual("2020年1月2日", summary["start_date"])
-        self.assertEqual("2020年10月9日", summary['end_date'])
+        self.assertEqual("2020年7月1日", summary["start_date"])
+        self.assertEqual("2020年10月1日", summary['end_date'])
 
     def testAddTimeSeries(self):
         self.ctl.clean_data()
@@ -71,14 +71,19 @@ class TestPlotController(unittest.TestCase):
         bef_row, bef_col = self.ctl.data.shape
         self.ctl.clean_data()
         aft_row, aft_col = self.ctl.data.shape
-        print(bef_row, bef_col, aft_row, aft_col)
+        print(self.ctl.data.change[0])
 
         cols = ["date", "close", "open", "high", "low", "volume", "change"]
         for col, data_col in zip(cols, self.ctl.data.columns):
             self.assertEqual(col, data_col)
 
-        # remove % in change
-        self.assertFalse("%" in self.ctl.data.change[0])
+        # check type of attri
+        self.assertTrue(type(self.ctl.data.close))
+        self.assertTrue(type(self.ctl.data.op))
+        self.assertTrue(type(self.ctl.data.high))
+        self.assertTrue(type(self.ctl.data.low))
+        self.assertTrue(type(self.ctl.data.volume))
+        self.assertTrue(type(self.ctl.data.change))
 
         # check quantity of data after clean data is smaller than before.
         self.assertTrue(aft_row < bef_row)
@@ -92,18 +97,18 @@ class TestPlotController(unittest.TestCase):
 
         # test date is enough to find last 10 days
         avg_open, avg_close = self.ctl.get_avg_by_date(end_date, 5)
-        self.assertAlmostEqual(340.538, avg_open, places=3)
-        self.assertAlmostEqual(341.216, avg_close, places=3)
+        self.assertAlmostEqual(332.142, avg_open, places=3)
+        self.assertAlmostEqual(333.444, avg_close, places=3)
 
         # test date is enough to find last 10 days
         avg_open, avg_close = self.ctl.get_avg_by_date(end_date, 20)
-        self.assertAlmostEqual(334.5020, avg_open, places=3)
-        self.assertAlmostEqual(334.7245, avg_close, places=3)
+        self.assertAlmostEqual(335.4699, avg_open, places=3)
+        self.assertAlmostEqual(334.1740, avg_close, places=3)
 
         # test date is enough to find last 10 days
         avg_open, avg_close = self.ctl.get_avg_by_date(end_date, 60)
-        self.assertAlmostEqual(335.085, avg_open, places=3)
-        self.assertAlmostEqual(335.1525, avg_close, places=3)
+        self.assertAlmostEqual(332.9720, avg_open, places=3)
+        self.assertAlmostEqual(332.9600, avg_close, places=3)
 
         # test date isn't enough to find last 10 days
         avg_open, avg_close = self.ctl.get_avg_by_date("2020年9月30日", 10)
