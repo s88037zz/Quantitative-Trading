@@ -45,8 +45,16 @@ class DataProcessController(object):
         return self.data['5MA']
 
     @property
+    def ma12(self):
+        return self.data['12MA']
+
+    @property
     def ma20(self):
         return self.data['20MA']
+
+    @property
+    def ma26(self):
+        return self.data['26MA']
 
     @property
     def ma60(self):
@@ -61,7 +69,9 @@ class DataProcessController(object):
         self.add_time_series()
         self.sorted_by_time_series()
         self.add_5MA()
+        self.add_12MA()
         self.add_20MA()
+        self.add_26MA()
         self.add_60MA()
         self.add_datetime()
 
@@ -95,9 +105,6 @@ class DataProcessController(object):
         # remove M in volume
         self._data.volume = self.data.volume.apply(lambda value: float(value.replace('M', "")))
 
-
-
-
     def sorted_by_time_series(self):
         self._data = self._data.sort_values(by=['time_series'], ascending=True)
         self._data = self._data.reset_index()
@@ -113,9 +120,17 @@ class DataProcessController(object):
         self.data["5MA"] = self.data.apply(
             lambda d: self.get_avg_by_date(d.date, 5)[1], axis=1)
 
+    def add_12MA(self):
+        self.data['12MA'] = self.data.apply(
+            lambda d: self.get_avg_by_date(d.date, 12)[1], axis=1)
+
     def add_20MA(self):
         self.data["20MA"] = self.data.apply(
             lambda d: self.get_avg_by_date(d.date, 20)[1], axis=1)
+
+    def add_26MA(self):
+        self.data["26MA"] = self.data.apply(
+            lambda d: self.get_avg_by_date(d.date, 26)[1], axis=1)
 
     def add_60MA(self):
         self.data["60MA"] = self.data.apply(
@@ -135,8 +150,9 @@ class DataProcessController(object):
         return avg_open, avg_close
 
 
+
 if __name__ == '__main__':
-    data_path = os.path.abspath(os.path.join("..", "..", 'data', "SPY歷史資料.csv"))
+    data_path = os.path.abspath(os.path.join("../..", "..", 'data', "SPY歷史資料.csv"))
     ctl = DataProcessController()
 
     ctl.process(data_path, 'csv')

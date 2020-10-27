@@ -1,6 +1,5 @@
-from src.Controller.DataProcessController import DataProcessController
-from datetime import datetime
-import unittest, os, time
+from src.Controller.Process.DataProcessController import DataProcessController
+import unittest, os
 
 
 class TestPlotController(unittest.TestCase):
@@ -79,7 +78,7 @@ class TestPlotController(unittest.TestCase):
 
         # check type of attri
         self.assertTrue(type(self.ctl.data.close))
-        self.assertTrue(type(self.ctl.data.op))
+        self.assertTrue(type(self.ctl.data.open))
         self.assertTrue(type(self.ctl.data.high))
         self.assertTrue(type(self.ctl.data.low))
         self.assertTrue(type(self.ctl.data.volume))
@@ -100,12 +99,22 @@ class TestPlotController(unittest.TestCase):
         self.assertAlmostEqual(332.142, avg_open, places=3)
         self.assertAlmostEqual(333.444, avg_close, places=3)
 
-        # test date is enough to find last 10 days
+        # test date is enough to find last 12 days
+        avg_open, avg_close = self.ctl.get_avg_by_date(end_date, 12)
+        self.assertAlmostEqual(331.4408, avg_open, places=3)
+        self.assertAlmostEqual(331.3283, avg_close, places=3)
+
+        # test date is enough to find last 20 days
         avg_open, avg_close = self.ctl.get_avg_by_date(end_date, 20)
         self.assertAlmostEqual(335.4699, avg_open, places=3)
         self.assertAlmostEqual(334.1740, avg_close, places=3)
 
-        # test date is enough to find last 10 days
+        # test date is enough to find last 26 days
+        avg_open, avg_close = self.ctl.get_avg_by_date(end_date, 26)
+        self.assertAlmostEqual(338.7288, avg_open, places=3)
+        self.assertAlmostEqual(338.0603, avg_close, places=3)
+
+        # test date is enough to find last 60 days
         avg_open, avg_close = self.ctl.get_avg_by_date(end_date, 60)
         self.assertAlmostEqual(332.9720, avg_open, places=3)
         self.assertAlmostEqual(332.9600, avg_close, places=3)
