@@ -5,17 +5,17 @@ import unittest, os
 class TestPlotController(unittest.TestCase):
     def setUp(self):
         self.ctl = DataProcessController()
-        self.ctl.load(os.path.join('.', 'data', 'simple_data.csv'), 'csv')
+        self.ctl.load(os.path.join('../..', 'data', 'simple_data.csv'), 'csv')
 
     def testLoad(self):
         # test load csv data
-        test_csv_path = os.path.join('.', 'data', 'simple_data.csv')
+        test_csv_path = os.path.join('../..', 'data', 'simple_data.csv')
         print("test_csv_path:", test_csv_path)
         self.ctl.load(test_csv_path, 'csv')
         self.assertIsNotNone(self.ctl.data)
 
         # test load json data
-        test_json_path = os.path.join('.', 'data', 'simple_data.json')
+        test_json_path = os.path.join('../..', 'data', 'simple_data.json')
         print("test_json_path:", test_json_path)
         self.ctl.load(test_json_path, 'json')
         self.assertIsNotNone(self.ctl.data)
@@ -125,7 +125,7 @@ class TestPlotController(unittest.TestCase):
         self.assertAlmostEqual(330.008, avg_close, places=3)
 
     def testProcess(self):
-        self.ctl.process(os.path.join('.', 'data', 'simple_data.csv'), type='csv')
+        self.ctl.process(os.path.join('../..', 'data', 'simple_data.csv'), type='csv')
         data = self.ctl.data
         print(data.head())
         self.assertTrue(data.time_series.iloc[0] < data.time_series.iloc[1])

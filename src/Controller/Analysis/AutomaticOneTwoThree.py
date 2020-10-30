@@ -28,4 +28,3 @@ class AutomaticOneTwoThree(object):
                 directions.append(-1)
 
         self._data['directions'] = directions
-
