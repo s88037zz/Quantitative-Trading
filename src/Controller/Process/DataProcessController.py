@@ -74,6 +74,7 @@ class DataProcessController(object):
         self.add_26MA()
         self.add_60MA()
         self.add_datetime()
+        print("Data after Processing:\n", self.data.head())
 
     def load(self, path, type):
         if type == "csv":
