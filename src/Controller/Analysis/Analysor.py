@@ -31,33 +31,61 @@ class Analysor(metaclass=abc.ABCMeta):
             raise Exception("The start datetime isn't in data")
 
     @staticmethod
-    def get_up_trend_index(directions):
+    def get_up_trends(directions):
         up_trends = []
-        start = None
+        star_idx = None
         for i in range(1, len(directions)):
-            if directions[i] == 1 and start is None:
-                start = i
-            if directions[i] == -1 and (directions[i-1] == 1 or directions[i-1] == 0)and start is not None:
-                up_trends.append([start, i-1])
-                start = None
-        if start is not None:
-            up_trends.append([start, len(directions)-1])
+            if directions[i] == -1 and (directions[i-1] == 1 or directions[i-1] == 0) and star_idx is not None:
+                up_trends.append([star_idx, i])
+                star_idx = None
+
+            if directions[i] == 1 and star_idx is None:
+                star_idx = i
+
+        if star_idx is not None:
+            up_trends.append([star_idx, len(directions)])
 
         return up_trends
 
     @staticmethod
-    def get_down_trends_index(directions):
+    def get_down_trends(directions):
         down_trends = []
-        start = None
-        for i in range(1, len(directions)):
-            if directions[i] == -1 and start is None:
-                start = i
-            if directions[i] == 1 and (directions[i-1] == -1 or directions[i - 1] == 0) and start is not None:
-                # add up trend to up trends
-                down_trends.append([start, i-1])
-                # reset variable of up trend
-                start = None
-        if start is not None:
-            down_trends.append([start, len(directions) - 1])
+        star_idx = None
+        for i in range(0, len(directions)):
+            if directions[i] == 1 and (directions[i-1] == -1 or directions[i - 1] == 0) and star_idx is not None:
+                down_trends.append([star_idx, i])
+                star_idx = None
+
+            if directions[i] == -1 and star_idx is None:
+                star_idx = i
+
+        if star_idx is not None:
+            down_trends.append([star_idx, len(directions)])
 
         return down_trends
+
+    @staticmethod
+    def get_trends(directions):
+        trends = []
+
+        start_idx = None
+        d = 0
+        for i in range(0, len(directions)):
+            if d == -1 and directions[i] == 1 and (directions[i-1] == -1 or directions[i-1] == 0):
+                trends.append([start_idx, i]) # down
+                start_idx = None
+            if d == 1 and directions[i] == -1 and (directions[i-1] == 1 or directions[i-1] == 0):
+                trends.append([start_idx, i]) # up
+                start_idx = None
+            if start_idx is None:
+                start_idx = i
+                d = directions[i]
+        if start_idx is not None:
+            trends.append([start_idx, len(directions)])
+        return trends
+
+
+
+
+
+

@@ -5,7 +5,7 @@ from selenium import webdriver
 
 class TestDataController(unittest.TestCase):
     def setUp(self):
-        self.controller = DataController()
+        self.controller = DataController(os.path.join("..", "..", "src", "chromedriver"))
         self.driver = self.controller.driver
 
     def testLogin(self):

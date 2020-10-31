@@ -4,10 +4,13 @@ import time, os
 
 
 class DataController(object):
-    def __init__(self):
+    def __init__(self, driver_path=None):
         self.url = "https://hk.investing.com/etfs/spdr-s-p-500-historical-data"
         self.save_path = os.path.abspath(os.path.join("..", "..", "data"))
-        self.driver_path = os.path.abspath(os.path.join(os.path.pardir, 'chromedriver'))
+        if driver_path is None:
+            self.driver_path = os.path.abspath(os.path.join(os.path.pardir, 'chromedriver'))
+        else:
+            self.driver_path = driver_path
         self.driver = self.get_driver()
         self.email = "s88037zz@gmail.com"
         self.passwd = 's88037zz'

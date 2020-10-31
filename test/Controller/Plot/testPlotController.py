@@ -8,10 +8,10 @@ import numpy as np
 
 class TestPlotController(unittest.TestCase):
     def setUp(self):
-        path = os.path.join('../..', 'data', 'SPY歷史資料after-2010.csv')
+        path = os.path.join('..', '..', 'data', 'SPY歷史資料after-2010.csv')
         self.dp_ctl = DataProcessController()
-        self.aott = AutomaticOneTwoThree(self.dp_ctl.data, "2017/01/01", "2017/12/31")
         self.dp_ctl.process(path, 'csv')
+        self.aott = AutomaticOneTwoThree(self.dp_ctl.data, "2017/01/01", "2017/12/31")
         self.pc_ctl = PlotController()
 
     def testCreateFigure(self):
@@ -22,4 +22,4 @@ class TestPlotController(unittest.TestCase):
 
     def testPlotPriceTrend(self):
         # plot_prices_trend
-        self.pc.plot_prices_trend(self.aott.data, '12MA', '26MA', self.aott.trends)
+        self.pc_ctl.plot_prices_trend(self.aott.data, '12MA', '26MA', self.aott.trends)

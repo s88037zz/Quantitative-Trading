@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 import os
@@ -24,15 +24,29 @@ class PlotController():
         macd = data[macd_key]
 
         fig, ax = self.create_figure(xlabel='Date', ylabel='Price', title='Price Trend')
-        ax.plot(data["datetime"], signal, label=signal_key)
-        ax.plot(data["datetime"], macd, label=macd_key)
-        # for start_index, end_index in trends["up_trend"]:
-        #     rectangle = Rectangle((end_index-5, signal[end_index]+5),
-        #                           0.5,
-        #                           0.5,
-        #                           edgecolor='Red',
-        #                           fill=False)
-        #     ax.add_patch(rectangle)
+        x = data["datetime"].apply(lambda x: x.timestamp())
+        ax.plot(x, signal, label=signal_key)
+        ax.plot(x, macd, label=macd_key)
+        print('Up trend:')
+        for start_index, end_index in trends["up_trend"]:
+            print(' ', start_index, end_index)
+            # rectangle = Rectangle((x.values[end_index], signal.iloc[end_index]+1.5),
+            #                       timedelta(days=10).total_seconds(),
+            #                       3,
+            #                       edgecolor='Red',
+            #                       fill=False)
+            #ax.add_patch(rectangle)
+            plt.text(x.values[end_index]-timedelta(days=2).total_seconds(),  signal.iloc[end_index]+3, "H",
+                     bbox=dict(facecolor='red', alpha=0.5))
+
+        print('Down trend:')
+        for start_index, end_index in trends["down_trend"]:
+            print(' ', start_index, end_index)
+            plt.text(x.values[end_index]-timedelta(days=2).total_seconds(),  signal.iloc[end_index]-3, "L",
+                     bbox=dict(facecolor='green', alpha=0.5, ))
+
+        labels = data['datetime'].apply(lambda x: str(x).split(' ')[0]).values
+        plt.xticks(x[::20], labels[::20])
         self.show()
 
     def show(self):

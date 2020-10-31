@@ -44,3 +44,25 @@ class TestAutomaticOneTwoThree(unittest.TestCase):
             for value in values:
                 # value := trend range(start, end)
                 self.assertEqual(2, len(value))
+
+    def testFindHighestInTrend(self):
+        trend = [0, 4]
+        value, index = self.aott.find_highest(trend)
+        self.assertAlmostEqual(227.75, value, places=3)
+        self.assertEqual(3, index)
+
+    def testFindLowestInTrend(self):
+        trend = [0, 4]
+        value, index = self.aott.find_lowest(trend)
+        print(value, index)
+        self.assertAlmostEqual(225.9, value, places=3)
+        self.assertEqual(1, index)
+
+"""
+In a Trend, there contain:
+highest, highest_index
+lowest, lowest_index
+Exception[t_index] 
+Status[t_index]
+Direction[t_index]
+"""
