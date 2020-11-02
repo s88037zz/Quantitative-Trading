@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 import matplotlib.pyplot as plt
-from matplotlib.patches import Rectangle
+from matplotlib.patches import Circle
 import os
 import numpy as np
 
@@ -23,31 +23,33 @@ class PlotController():
         signal = data[signal_key]
         macd = data[macd_key]
 
-        fig, ax = self.create_figure(xlabel='Date', ylabel='Price', title='Price Trend')
         x = data["datetime"].apply(lambda x: x.timestamp())
         ax.plot(x, signal, label=signal_key)
         ax.plot(x, macd, label=macd_key)
         print('Up trend:')
-        for start_index, end_index in trends["up_trend"]:
+        for start_index, end_index in trends["up_trends"]:
             print(' ', start_index, end_index)
-            # rectangle = Rectangle((x.values[end_index], signal.iloc[end_index]+1.5),
-            #                       timedelta(days=10).total_seconds(),
-            #                       3,
-            #                       edgecolor='Red',
-            #                       fill=False)
-            #ax.add_patch(rectangle)
-            plt.text(x.values[end_index]-timedelta(days=2).total_seconds(),  signal.iloc[end_index]+3, "H",
+
+            plt.text(x.values[end_index-1]-timedelta(days=2).total_seconds(),  signal.iloc[end_index-1]+5, "H",
                      bbox=dict(facecolor='red', alpha=0.5))
 
         print('Down trend:')
-        for start_index, end_index in trends["down_trend"]:
+        for start_index, end_index in trends["down_trends"]:
             print(' ', start_index, end_index)
-            plt.text(x.values[end_index]-timedelta(days=2).total_seconds(),  signal.iloc[end_index]-3, "L",
-                     bbox=dict(facecolor='green', alpha=0.5, ))
+            plt.text(x.values[end_index-1]-timedelta(days=2).total_seconds(),  signal.iloc[end_index-1]-5, "L",
+                     bbox=dict(facecolor='green', alpha=0.5))
 
         labels = data['datetime'].apply(lambda x: str(x).split(' ')[0]).values
         plt.xticks(x[::20], labels[::20])
         self.show()
+
+    def plot_last_min_max_bar(self, data, signal_key, last_series_type, ax):
+        color = 'r' if last_series_type == 'last_max_idx' else 'g'
+        print(last_series_type+":")
+        for last_idx in data[last_series_type].unique():
+            x = data["datetime"].iloc[last_idx].timestamp()
+            ax.plot([x, x], [data.high.iloc[last_idx], data.low.iloc[last_idx]], color=color)
+
 
     def show(self):
         plt.xticks(rotation=45)
@@ -62,10 +64,15 @@ if __name__ == '__main__':
     data_path = os.path.abspath(os.path.join("../..", "..", 'data', "SPY歷史資料after-2010.csv"))
     dp_ctl = DataProcessController()
     dp_ctl.process(data_path, 'csv')
-    aott = AutomaticOneTwoThree(dp_ctl.data, '2017/01/01', '2017/12/31')
+    aott = AutomaticOneTwoThree(dp_ctl.data, '2017/01/01', '2017/12/31', signal_key='1MA')
     pc = PlotController()
 
 
     # plot_prices_trend
-    pc.plot_prices_trend(aott.data, '12MA', '26MA', aott.trends)
+    pc.plot_prices_trend(aott.data, '1MA', '26MA', {"up_trends": aott.up_trends,
+                                                     "down_trends": aott.down_trends})
 
+    fig, ax = pc.create_figure(xlabel='Date', ylabel='Price', title='Init Min Max process')
+    pc.plot_last_min_max_bar(aott.data, '1MA', "last_min_idx", ax)
+    pc.plot_last_min_max_bar(aott.data, '1MA', "last_max_idx", ax)
+    pc.show()

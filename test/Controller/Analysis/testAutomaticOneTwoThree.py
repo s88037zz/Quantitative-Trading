@@ -18,9 +18,9 @@ class TestAutomaticOneTwoThree(unittest.TestCase):
                                          signal_key='12MA',
                                          macd_key='26MA')
 
-    def testUpdateDirections(self):
+    def testInitDirections(self):
         self.assertFalse('directions' in self.aott.data.columns)
-        self.aott.update_directions()
+        self.aott.init_directions()
         answer = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
                   -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
                    1, 1, 1, 1, 1, 1, -1, -1, -1, -1, -1, -1, 0, 0, 0, 0, 0]
@@ -36,7 +36,7 @@ class TestAutomaticOneTwoThree(unittest.TestCase):
         end = self.aott._get_end_datetime(self.dp_ctl.data, "2017/12/31")
         self.assertEqual(np.datetime64(datetime.strptime("2017/12/31", "%Y/%m/%d")), end)
 
-    def testUpdateTrends(self):
+    def testeInitTrends(self):
         trends = self.aott.trends
         self.assertTrue(trends)
         self.assertTrue('up_trend' in trends.keys() and 'down_trend' in trends.keys())
@@ -54,9 +54,34 @@ class TestAutomaticOneTwoThree(unittest.TestCase):
     def testFindLowestInTrend(self):
         trend = [0, 4]
         value, index = self.aott.find_lowest(trend)
-        print(value, index)
-        self.assertAlmostEqual(225.9, value, places=3)
-        self.assertEqual(1, index)
+        self.assertAlmostEqual(223.880, value, places=3)
+        self.assertEqual(0, index)
+
+    def testInitMinMaxProcess(self):
+        self.aott.init_min_max_process()
+        # print(self.aott.data['last_min_idx'].values)
+        # print(self.aott.data['last_max_idx'].values)
+
+        for ans, idx in zip(np.array([0, 57, 123]), self.aott.data['last_min_idx'].unique()):
+            self.assertEqual(ans, idx)
+        for ans, idx in zip(np.array([0, 39, 109, 142]), self.aott.data['last_max_idx'].unique()):
+            self.assertEqual(ans, idx)
+
+
+    def testUpdateExecepetion(self):
+        self.aott.update_exceptions()
+        exceptions = self.aott._exceptions
+        directions = self.aott.data.directions.values
+        for i, (e, d) in enumerate(zip(exceptions, directions)):
+            print(self.aott.data.date.values[i], d, e)
+
+        idx = np.where(self.aott.data.date == "2017年10月20日")[0]
+        self.assertEqual(1.0, directions[idx][0] * exceptions[idx][0])
+        idx = np.where(self.aott.data.date == "2017年5月17日")[0]
+        self.assertEqual(1.0, self.aott.data.directions.iloc[idx].values[0] * exceptions[idx])
+        idx = np.where(self.aott.data.date == "2017年5月17日")[0]
+
+
 
 """
 In a Trend, there contain:

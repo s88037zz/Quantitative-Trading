@@ -10,7 +10,9 @@ class Analysor(metaclass=abc.ABCMeta):
         self._data = self._get_data_in_time(data)
 
     def _get_data_in_time(self, data):
-        return data.loc[(self.start_datetime <= data.datetime) & (data.datetime <= self.end_datetime)].copy()
+        sub_data = data.loc[(self.start_datetime <= data.datetime) & (data.datetime <= self.end_datetime)].copy()
+        print("Data(Analysor selected):", sub_data.shape)
+        return sub_data
 
     def _get_start_datetime(self, data, start_date=None):
         if start_date is None:

@@ -41,6 +41,10 @@ class DataProcessController(object):
         return self._end_date
 
     @property
+    def ma1(self):
+        return self.data['1MA']
+
+    @property
     def ma5(self):
         return self.data['5MA']
 
@@ -68,6 +72,7 @@ class DataProcessController(object):
         self.clean_data()
         self.add_time_series()
         self.sorted_by_time_series()
+        self.add_1MA()
         self.add_5MA()
         self.add_12MA()
         self.add_20MA()
@@ -117,6 +122,10 @@ class DataProcessController(object):
         self.data['time_series'] = self.data.date.apply(
             lambda d: time.mktime(datetime.strptime(d, self._date_format).timetuple()))
 
+    def add_1MA(self):
+        self.data["1MA"] = self.data.apply(
+            lambda d: self.get_avg_by_date(d.date, 1)[1], axis=1)
+
     def add_5MA(self):
         self.data["5MA"] = self.data.apply(
             lambda d: self.get_avg_by_date(d.date, 5)[1], axis=1)
@@ -158,6 +167,5 @@ if __name__ == '__main__':
 
     ctl.process(data_path, 'csv')
     data = ctl.data
-    print(data.head())
 
     print(ctl.data['datetime'])
