@@ -23,6 +23,7 @@ class PlotController():
         signal = data[signal_key]
         macd = data[macd_key]
 
+        fig, ax = pc.create_figure(xlabel='Date', ylabel='Price', title='Init Min Max process')
         x = data["datetime"].apply(lambda x: x.timestamp())
         ax.plot(x, signal, label=signal_key)
         ax.plot(x, macd, label=macd_key)
@@ -39,6 +40,8 @@ class PlotController():
             plt.text(x.values[end_index-1]-timedelta(days=2).total_seconds(),  signal.iloc[end_index-1]-5, "L",
                      bbox=dict(facecolor='green', alpha=0.5))
 
+        pc.plot_last_min_max_bar(aott.data, '1MA', "last_min_idx", ax)
+        pc.plot_last_min_max_bar(aott.data, '1MA', "last_max_idx", ax)
         labels = data['datetime'].apply(lambda x: str(x).split(' ')[0]).values
         plt.xticks(x[::20], labels[::20])
         self.show()
@@ -72,7 +75,4 @@ if __name__ == '__main__':
     pc.plot_prices_trend(aott.data, '1MA', '26MA', {"up_trends": aott.up_trends,
                                                      "down_trends": aott.down_trends})
 
-    fig, ax = pc.create_figure(xlabel='Date', ylabel='Price', title='Init Min Max process')
-    pc.plot_last_min_max_bar(aott.data, '1MA', "last_min_idx", ax)
-    pc.plot_last_min_max_bar(aott.data, '1MA', "last_max_idx", ax)
     pc.show()

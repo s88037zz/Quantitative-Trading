@@ -113,7 +113,11 @@ class DataProcessController(object):
 
     def sorted_by_time_series(self):
         self._data = self._data.sort_values(by=['time_series'], ascending=True)
-        self._data = self._data.reset_index()
+        print("before reset index:\n", self._data.head())
+        self._data = self._data.set_index(np.array([i for i in range(len(self._data))]))
+        print("before reset index:\n", self._data.head())
+
+
 
     def add_datetime(self):
         self.data['datetime'] = self.data.apply(lambda d: datetime.strptime(d.date, self._date_format), axis=1)

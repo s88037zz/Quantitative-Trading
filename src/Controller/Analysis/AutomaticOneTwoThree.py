@@ -10,15 +10,19 @@ class AutomaticOneTwoThree(Analysor):
         self.macd_key = macd_key
         self.theta = theta
 
+        self.directions = []
         self._trends = {}
         self._up_trends = {}
         self._down_trends = {}
-        self._exceptions = np.zeros(data.shape[0])
+        self._exceptions = []
         self._status = []
 
-        self.init_directions()
-        self.init_trends()
-        self.init_min_max_process()
+        self.last_min_idx = 0
+        self.last_max_idx = 0
+        self.temp_min_idx = 0
+        self.temp_max_idx = 0
+
+        self.init_data_and_property()
 
     @property
     def data(self):
@@ -37,7 +41,31 @@ class AutomaticOneTwoThree(Analysor):
         return self._down_trends
 
     def analysis(self):
-        pass
+        # reference index
+        for i in range(1, len(self.data)):
+            print("Bar index:", i)
+
+            self.init_min_max_process(i)
+            self.update_min_max_process(i)
+            self.update_exception(i)
+
+            # save this round status
+            self.data['last_max_idx'] = self.last_min_idx
+            self.data['last_max_idx'] = self.last_max_idx
+            self.data['temp_min_idx'] = self.temp_min_idx
+            self.data['temp_max_idx'] = self.temp_max_idx
+
+            self._status = np.array(self.directions) * np.array(self._exceptions)
+
+    def init_data_and_property(self):
+        self.init_directions()
+        self.init_trends()
+        self._exceptions = [1 for i in range(len(self.data))]
+        self._status = self.directions.copy()
+        self.data["last_min_idx"] = np.zeros(len(self.data))
+        self.data["last_max_idx"] = np.zeros(len(self.data))
+        self.data["temp_max_idx"] = np.zeros(len(self.data))
+        self.data['temp_min_idx'] = np.zeros(len(self.data))
 
     def init_directions(self):
         if self.signal_key not in self.data.columns or self.macd_key not in self.data.columns:
@@ -53,86 +81,124 @@ class AutomaticOneTwoThree(Analysor):
             else:
                 directions.append(-1)
 
-        self._data['directions'] = directions
+        self.directions = directions
+        self._data['direction'] = self.directions
 
     def init_trends(self):
-        up_trends = Analysor.get_up_trends(self.data.directions.values)
-        down_trends = Analysor.get_down_trends(self.data.directions.values)
-        trends = Analysor.get_trends(self.data.directions.values)
+        up_trends = Analysor.get_up_trends(self.data.direction.values)
+        down_trends = Analysor.get_down_trends(self.data.direction.values)
+        trends = Analysor.get_trends(self.data.direction.values)
         self._up_trends = up_trends
         self._down_trends = down_trends
         self._trends = trends
 
-    def find_highest(self, trend):
+    def get_highest(self, trend):
+        """
+        找到時間內max height
+        :param trend: list, [0]:  date start, [1]: date end
+        :return:  max high, relative index of high in time
+        """
         data = self.data.iloc[trend[0]:trend[1], :]
+        #print("data(high):\n", data.high)
         highest_idx = np.argmax(data.high)
         return data.high.iloc[highest_idx], highest_idx
 
-    def find_lowest(self, trend):
+    def get_lowest(self, trend):
+        """
+        找到時間內min low
+        :param trend: list, [0]:  date start, [1]: date end
+        :return:  min low, relative index of low in time
+        """
         data = self.data.iloc[trend[0]:trend[1], :]
+        #print("data(low):\n", data.low)
         lowest_idx = np.argmin(data.low)
         return data.low.iloc[lowest_idx], lowest_idx
 
-    def init_min_max_process(self):
-        directions = self.data.directions.values
-        last_min_idx = 0
-        last_max_idx = 0
-        last_min_idx_list = []
-        last_max_idx_list = []
-        trend_idx = 0
-        for i in range(0, len(directions)):
-            if i not in range(self.trends[trend_idx][0], self.trends[trend_idx][1]):
-                trend_idx += 1
+    def get_trend_idx(self, bar_idx):
+        for index, trend in enumerate(self.trends):
+            if trend[0] <= bar_idx <= trend[1]:
+                return index
+        return 0
 
-            if directions[i] == 1 and (directions[i-1] == 0 or directions[i-1] == -1):
-                lowest, lowest_idx = self.find_lowest(self.trends[trend_idx-1])
-                last_min_idx = self.trends[trend_idx-1][0] + lowest_idx
+    def init_min_max_process(self, bar_idx):
+        trend_idx = self.get_trend_idx(bar_idx)
+        directions = self.data.direction.values
+        # period of lowest low in previous trend when trend status from -1,0 to 1.
+        if directions[bar_idx] == 1 and (directions[bar_idx-1] == 0 or directions[bar_idx-1] == -1):
+            lowest, lowest_idx = self.get_lowest(self.trends[trend_idx-1])
+            self.last_min_idx = self.trends[trend_idx-1][0] + lowest_idx
+            print(" Init last min in", self.data.iloc[bar_idx, :]["date"])
 
-            if directions[i] == -1 and (directions[i-1] == 0 or directions[i-1] == 1):
-                highest, highest_idx = self.find_highest(self.trends[trend_idx-1])
-                last_max_idx = self.trends[trend_idx-1][0] + highest_idx
+        # period of highest high in previous trend when trend status from 1, 0 to -1.
+        if directions[bar_idx] == -1 and (directions[bar_idx-1] == 0 or directions[bar_idx-1] == 1):
+            highest, highest_idx = self.get_highest(self.trends[trend_idx-1])
+            self.last_max_idx = self.trends[trend_idx-1][0] + highest_idx
+            print("  Init last max in", self.data.iloc[bar_idx, :]["date"])
 
-            last_min_idx_list.append(last_min_idx)
-            last_max_idx_list.append(last_max_idx)
+    def update_min_max_process(self, bar_idx):
+        print(" Update min max process:")
 
-        self.data["last_min_idx"] = last_min_idx_list
-        self.data["last_max_idx"] = last_max_idx_list
+        bar = self.data.iloc[bar_idx, :]
+        # previous bar direction is positive
+        if self._status[bar_idx-1] == 1:
+            #  current bar high is bigger than temp max high.
+            #  (in order to find the max high in this directions)
+            if self.data.iloc[self.temp_max_idx]["high"] <= bar["high"]:
+                self.temp_max_idx = bar_idx
 
-    def update_exceptions(self):
-        print("Exception:")
-        directions = self.data.directions.values
-        for i in range(len(directions)):
-            # for i == 0
+            # 與前一個的狀態相反，代表occur exception(發生exception時，將資料做個更新)
+            if self._status[bar_idx] == -1:
+                # end a period
+                self.last_max_idx = self.temp_max_idx
+                lowest, self.temp_min_idx = self.get_lowest([self.last_min_idx, bar_idx])
 
-            last_min_idx = self.data.last_min_idx.iloc[i]
-            last_min = self.data.low.iloc[last_min_idx]
-            last_max_idx = self.data.last_max_idx.iloc[i]
-            last_max = self.data.high.iloc[last_max_idx]
+        # previous bar direction is negative
+        elif self._status[bar_idx-1] == -1:
+            if self.data.iloc[self.temp_min_idx, :]["low"] >= bar['low']:
+                self.temp_min_idx = bar_idx
+            if self._status[bar_idx] == 1:
+                self.last_min_idx = self.temp_min_idx
+                highest, self.temp_max_idx = self.get_highest([self.last_max_idx, bar_idx])
 
-            row = self.data.iloc[i, :]
-            temp_max = row.high
-            temp_min = row.low
-            cur_direct = row.directions
-            pre_direct = self.data.directions.iloc[i-1]
+        # for easy verify
+        print("     status[i-1], status[i]:{}, {}"
+              "     temp max:{}, "
+              "     temp min:{}, "
+              "     last max:{}"
+              "     last min:{}".format(self._status[bar_idx-1], self._status[bar_idx-1],
+                                        self.temp_max_idx, self.temp_min_idx,
+                                        self.last_max_idx, self.last_min_idx))
 
-            if self._exceptions[i - 1] == -1:
-                #print("     Date(next exception a day):{}".format(row.datetime))
-                # exceptional process was already active(如果前一個有Exception的可能, ...)
-                if (pre_direct * cur_direct == -1) or \
-                        (pre_direct == -1 and last_min >= temp_min) or \
-                        (pre_direct == 1 and last_max <= temp_max):
-                    self._exceptions[i] = 1
-                else:
-                    self._exceptions[i] = -1
-            elif pre_direct == cur_direct:
-                if cur_direct == 1 and last_min >= temp_min:
-                    print(" Data:{}".format(row.datetime))
-                    self._exceptions[i] = -1
-                elif cur_direct == -1 and last_max <= temp_max:
-                    print(" Data:{}".format(row.datetime))
-                    self._exceptions[i] = -1
-                else:
-                    self._exceptions[i] = 1
+    def update_exception(self, bar_idx):
+        bar = self.data.iloc[bar_idx, :]
+
+        last_min = self.data.low.iloc[self.last_min_idx]
+        last_max = self.data.high.iloc[self.last_max_idx]
+
+        temp_max = bar.high
+        temp_min = bar.low
+        cur_direct = bar.direction
+        pre_direct = self.data.direction.iloc[bar_idx-1]
+
+        if self._exceptions[bar_idx - 1] == -1:
+            #print("     Date(next exception a day):{}".format(row.datetime))
+            # exceptional process was already active(如果前一個有Exception的可能, ...)
+            if (pre_direct * cur_direct == -1) or \
+                    (pre_direct == -1 and last_min >= temp_min) or \
+                    (pre_direct == 1 and last_max <= temp_max):
+                self._exceptions[bar_idx] = 1
+            else:
+                self._exceptions[bar_idx] = -1
+
+        elif pre_direct == cur_direct:
+            if cur_direct == 1 and last_min >= temp_min:
+                print("     find (dir=1) exception in {}".format(bar.datetime))
+                self._exceptions[bar_idx] = -1
+            elif cur_direct == -1 and last_max <= temp_max:
+                print("     find (dir=-1) exception in {}".format(bar.datetime))
+                self._exceptions[bar_idx] = -1
+            else:
+                self._exceptions[bar_idx] = 1
 
 if __name__ == '__main__':
     from src.Controller.Process.DataProcessController import DataProcessController
@@ -142,8 +208,19 @@ if __name__ == '__main__':
     print(os.path.abspath(path))
     dp_ctl = DataProcessController()
     dp_ctl.process(path, 'csv')
+    print("After processing:\n", dp_ctl.data.head())
     aott = AutomaticOneTwoThree(dp_ctl.data,
                                 start_date='2017/01/01',
                                 end_date='2017/12/31',
                                 signal_key='12MA',
                                 macd_key='26MA')
+
+    aott.analysis()
+    for index, bar in aott.data.iterrows():
+        # print(row)
+        print("date:{}({}), dir:{}, last_min:{}, last_max:{}".format(bar.date,
+                                                                index,
+                                                                bar.direction,
+                                                                bar['last_min_idx'],
+                                                                bar['last_max_idx'],))
+

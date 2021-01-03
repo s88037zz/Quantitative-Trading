@@ -49,6 +49,8 @@ class Analysor(metaclass=abc.ABCMeta):
 
         return up_trends
 
+
+
     @staticmethod
     def get_down_trends(directions):
         down_trends = []
