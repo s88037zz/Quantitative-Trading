@@ -2,7 +2,7 @@ from src.Controller.Process.DataProcessController import DataProcessController
 import unittest, os
 
 
-class TestPlotController(unittest.TestCase):
+class TestDataProcessController(unittest.TestCase):
     def setUp(self):
         self.ctl = DataProcessController()
         self.ctl.load(os.path.join('../..', 'data', 'simple_data.csv'), 'csv')

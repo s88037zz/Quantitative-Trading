@@ -33,7 +33,7 @@ class Analysor(metaclass=abc.ABCMeta):
             raise Exception("The start datetime isn't in data")
 
     @staticmethod
-    def get_up_trends(directions):
+    def get_up_trends(directions) -> list:
         up_trends = []
         star_idx = None
         for i in range(1, len(directions)):
@@ -52,7 +52,7 @@ class Analysor(metaclass=abc.ABCMeta):
 
 
     @staticmethod
-    def get_down_trends(directions):
+    def get_down_trends(directions) -> list:
         down_trends = []
         star_idx = None
         for i in range(0, len(directions)):
@@ -69,7 +69,7 @@ class Analysor(metaclass=abc.ABCMeta):
         return down_trends
 
     @staticmethod
-    def get_trends(directions):
+    def get_trends(directions) -> list:
         trends = []
 
         start_idx = None

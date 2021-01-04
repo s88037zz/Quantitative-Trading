@@ -115,7 +115,7 @@ class DataProcessController(object):
         self._data = self._data.sort_values(by=['time_series'], ascending=True)
         print("before reset index:\n", self._data.head())
         self._data = self._data.set_index(np.array([i for i in range(len(self._data))]))
-        print("before reset index:\n", self._data.head())
+        print("before after index:\n", self._data.head())
 
 
 
@@ -166,10 +166,12 @@ class DataProcessController(object):
 
 
 if __name__ == '__main__':
-    data_path = os.path.abspath(os.path.join("../..", "..", 'data', "SPY歷史資料.csv"))
+    data_path = os.path.abspath(os.path.join("../..", "..", 'data', "SPY歷史資料2020.csv"))
     ctl = DataProcessController()
 
     ctl.process(data_path, 'csv')
     data = ctl.data
 
     print(ctl.data['datetime'])
+    with open(os.path.abspath(os.path.join("..", "..", "..", 'data', "temp.csv")), 'w') as file:
+        data.to_csv(file)

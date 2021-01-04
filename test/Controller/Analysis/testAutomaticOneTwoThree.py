@@ -1,10 +1,9 @@
 from src.Controller.Analysis.AutomaticOneTwoThree import AutomaticOneTwoThree
-from src.Controller.Analysis.DataAnalysisController import DataAnalysisController
+from src.Controller.Plot.PlotController import PlotController
 from src.Controller.Process.DataProcessController import DataProcessController
 from datetime import datetime
 import unittest, os
 import numpy as np
-
 
 
 class TestAutomaticOneTwoThree(unittest.TestCase):
@@ -36,40 +35,27 @@ class TestAutomaticOneTwoThree(unittest.TestCase):
         end = self.aott._get_end_datetime(self.dp_ctl.data, "2017/12/31")
         self.assertEqual(np.datetime64(datetime.strptime("2017/12/31", "%Y/%m/%d")), end)
 
-    def testeInitTrends(self):
+    def testeInitTrendsAndGetTrendIndex(self):
         trends = self.aott.trends
-        self.assertTrue(trends)
-        self.assertTrue('up_trend' in trends.keys() and 'down_trend' in trends.keys())
-        for key, values in trends.items():
-            for value in values:
-                # value := trend range(start, end)
-                self.assertEqual(2, len(value))
-
-    def testFindHighestInTrend(self):
-        trend = [0, 4]
-        value, index = self.aott.find_highest(trend)
-        self.assertAlmostEqual(227.75, value, places=3)
-        self.assertEqual(3, index)
-
-    def testFindLowestInTrend(self):
-        trend = [0, 4]
-        value, index = self.aott.find_lowest(trend)
-        self.assertAlmostEqual(223.880, value, places=3)
-        self.assertEqual(0, index)
+        trend_idx = self.aott.get_trend_idx(30)
+        self.assertTrue(trend_idx == 0)
+        trend_idx = self.aott.get_trend_idx(40)
+        self.assertTrue(trend_idx == 1)
+        trend_idx = self.aott.get_trend_idx(250)
+        self.assertTrue(trend_idx == 6)
 
     def testInitMinMaxProcess(self):
-        self.aott.init_min_max_process()
-        # print(self.aott.data['last_min_idx'].values)
-        # print(self.aott.data['last_max_idx'].values)
+        self.aott.init_min_max_process(0)
+        self.assertTrue(self.aott.last_min_idx == 0)
+        self.aott.init_min_max_process(53)
+        self.assertTrue(self.aott.last_max_idx == 39)
+        self.aott.init_min_max_process(111)
+        self.assertTrue(self.aott.last_max_idx == 109)
+        self.aott.init_min_max_process(148)
+        self.assertTrue(self.aott.last_max_idx == 142)
 
-        for ans, idx in zip(np.array([0, 57, 123]), self.aott.data['last_min_idx'].unique()):
-            self.assertEqual(ans, idx)
-        for ans, idx in zip(np.array([0, 39, 109, 142]), self.aott.data['last_max_idx'].unique()):
-            self.assertEqual(ans, idx)
-
-
-    def testUpdateExecepetion(self):
-        self.aott.update_exceptions()
+    def testUpdateException(self):
+        self.aott.update_exception()
         exceptions = self.aott._exceptions
         directions = self.aott.data.directions.values
         for i, (e, d) in enumerate(zip(exceptions, directions)):
@@ -81,13 +67,3 @@ class TestAutomaticOneTwoThree(unittest.TestCase):
         self.assertEqual(1.0, self.aott.data.directions.iloc[idx].values[0] * exceptions[idx])
         idx = np.where(self.aott.data.date == "2017年5月17日")[0]
 
-
-
-"""
-In a Trend, there contain:
-highest, highest_index
-lowest, lowest_index
-Exception[t_index] 
-Status[t_index]
-Direction[t_index]
-"""
