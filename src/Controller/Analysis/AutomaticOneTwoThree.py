@@ -122,6 +122,7 @@ class AutomaticOneTwoThree(Analysor):
         :return:  min low, relative index of low in time
         """
         data = self.data.iloc[trend[0]:trend[1], :]
+        #print("data(low):\n", data.low)
         lowest_idx = np.argmin(data.low)
         return data.low.iloc[lowest_idx], lowest_idx
 
@@ -218,7 +219,7 @@ class AutomaticOneTwoThree(Analysor):
         pre_direct = 1 if self.trends[trend_idx - 1] in self._up_trends else -1
 
         if self._exceptions[bar_idx - 1] == -1:
-            # print("     Date(next exception a day):{}".format(row.datetime))
+            #print("     Date(next exception a day):{}".format(row.datetime))
             # exceptional process was already active(如果前一個有Exception的可能, ...)
             if (pre_direct * cur_direct == -1) or \
                     (pre_direct == -1 and last_min >= temp_min) or \
@@ -238,7 +239,6 @@ class AutomaticOneTwoThree(Analysor):
             else:
                 self._exceptions[bar_idx] = 1
 
-
 if __name__ == '__main__':
     from src.Controller.Process.DataProcessController import DataProcessController
     import os
@@ -256,3 +256,4 @@ if __name__ == '__main__':
 
     aott.analysis()
     print(aott.data.head())
+

@@ -103,4 +103,3 @@ if __name__ == '__main__':
     aott = AutomaticOneTwoThree(dp_ctl.data, '2017/01/01', '2017/12/31', signal_key='1MA')
     pc = PlotController()
 
-
