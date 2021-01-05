@@ -142,8 +142,8 @@ class AutomaticOneTwoThree(Analysor):
         if directions[bar_idx] == 1 and (directions[bar_idx - 1] == 0 or directions[bar_idx - 1] == -1):
             lowest_bar, lowest_bar_idx = self.get_lowest([0, self.trends[trend_idx][1]])
             self.last_min_idx = lowest_bar_idx
-            print(" Change last min is {} when {}".format(
-                self.data.iloc[self.last_min_idx, :]["date"],
+            print(" Settle last min is {}(idx: {}) when {}".format(
+                self.data.iloc[self.last_min_idx, :]["date"], lowest_bar_idx,
                 self.data.iloc[bar_idx, :]['date']
             ))
         else:
@@ -158,8 +158,8 @@ class AutomaticOneTwoThree(Analysor):
         if directions[bar_idx] == -1 and (directions[bar_idx - 1] == 0 or directions[bar_idx - 1] == 1):
             highest_bar, highest_bar_idx = self.get_highest([0, self.trends[trend_idx][1]])
             self.last_max_idx = highest_bar_idx
-            print(" Change last max is {} when {}".format(
-                self.data.iloc[self.last_max_idx, :]["date"],
+            print(" Settle last max is {}(idx: {}) when {}".format(
+                self.data.iloc[self.last_max_idx, :]["date"], highest_bar_idx,
                 self.data.iloc[bar_idx, :]['date']
             ))
         else:

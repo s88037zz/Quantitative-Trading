@@ -28,13 +28,13 @@ class TestPlotController(unittest.TestCase):
         self.pc_ctl.show()
 
     def testPlotPriceDirections(self):
-        fig, ax = PlotController.create_figure(xlabel='Date', ylabel='Price', title='Signal & MACD Direction')
+        fig, ax = PlotController.create_figure(xlabel='Date', ylabel='Price', title='Signal & MACD Relation')
         self.pc_ctl.plot_prices_trend(self.aott.data, self.signal_key, self.macd_key, ax)
         self.pc_ctl.plot_up_down_trend(self.aott.data, self.signal_key, self.macd_key,
                                       self.aott.up_trends, self.aott.down_trends)
         self.pc_ctl.show()
 
-    def testPlotMinMaxBar(self):
+    def testPlotMinMaxSeparatelyBar(self):
         self.aott.analysis()
         fig, ax = PlotController.create_figure(xlabel='Date', ylabel='Price', title='Signal & MACD Direction')
         self.pc_ctl.plot_last_min_max_bar(self.aott.data, 'last_min_idx', ax)
@@ -43,8 +43,9 @@ class TestPlotController(unittest.TestCase):
 
     def testIntegratePlot(self):
         self.aott.analysis()
-        fig, ax = PlotController.create_figure(xlabel='Date', ylabel='Price', title='Signal & MACD Min Max')
+        fig, ax = PlotController.create_figure(xlabel='Date', ylabel='Price', title='Signal & MACD Integration Plot')
         self.pc_ctl.plot_prices_trend(self.aott.data, self.signal_key, self.macd_key, ax)
+        self.pc_ctl.plot_prices_bar(self.aott.data, ax)
         self.pc_ctl.plot_last_min_max_bar(self.aott.data, 'last_min_idx', ax)
         self.pc_ctl.plot_last_min_max_bar(self.aott.data, 'last_max_idx', ax)
         self.pc_ctl.show()
@@ -55,7 +56,7 @@ class TestPlotController(unittest.TestCase):
         test_close = [value-3 for value in test_open]
         test_low = [value - 5 for value in test_close]
         test_high = [value + 10 for value in test_open]
-        fig, ax = PlotController.create_figure(xlabel='Date', ylabel='Price', title='Signal & MACD Min Max')
+        fig, ax = PlotController.create_figure(xlabel='Date', ylabel='Price', title='Plot One Bar Test')
         for x, open, close, high, low in zip(test_x,
                                              test_open, test_close,
                                              test_high, test_low):
@@ -69,5 +70,11 @@ class TestPlotController(unittest.TestCase):
         try:
             PlotController.plot_one_bar(test_x[0], test_open[0], test_close[0],
                         test_high[0], test_low[0], ax, 'mid')
-        except ValueError as v:
-            self.assertTrue(v)
+        except AttributeError as a:
+            self.assertTrue(a)
+
+    def testPlotPricesBar(self):
+        fig, ax = PlotController.create_figure(size=(15, 12),
+                                               xlabel='Date', ylabel='Price', title='Test Plot Prices Bar')
+        PlotController.plot_prices_bar(self.aott.data, ax)
+        PlotController.show()

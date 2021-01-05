@@ -10,7 +10,10 @@ class PlotController:
 
     @staticmethod
     def create_figure(**kwargs):
-        fig, ax = plt.subplots()
+        if 'size' in kwargs.keys():
+            fig, ax = plt.subplots(size=kwargs['size'])
+        else:
+            fig, ax = plt.subplots()
         if 'xlabel' in kwargs.keys():
             plt.xlabel(kwargs['xlabel'])
         if 'ylabel' in kwargs.keys():
@@ -24,7 +27,7 @@ class PlotController:
         signal = data[signal_key]
         macd = data[macd_key]
 
-        x = data["datetime"]
+        x = data["datetime"].apply(lambda date: date.strftime("%Y/%m/%d"))
         ax.plot(x, signal, label=signal_key)
         ax.plot(x, macd, label=macd_key)
 
@@ -37,19 +40,18 @@ class PlotController:
 
         x = data["datetime"]
         for trend in up_trends:
-            start_index, end_index = trend[0], trend[1]
-            print(' start:{}, end:{} '.format(data["datetime"].iloc[start_index],
-                                              data["datetime"].iloc[end_index-1]))
+            start_idx, end_idx = trend[0], trend[1]
+            plot_idx = (start_idx + end_idx) // 2
 
-            plt.text(x.values[end_index-1]-timedelta(days=2).total_seconds(),  signal.iloc[end_index-1]+5, "H",
+            plt.text(x.values[plot_idx],  signal.iloc[plot_idx]+5, "H",
                      bbox=dict(facecolor='red', alpha=0.5))
 
         print('Down trend:')
         for trend in down_trends:
-            start_index, end_index = trend[0], trend[1]
-            print(' start:{}, end:{} '.format(data["datetime"].iloc[start_index],
-                                              data["datetime"].iloc[end_index-1]))
-            plt.text(x.values[end_index-1]-timedelta(days=2).total_seconds(),  signal.iloc[end_index-1]-5, "L",
+            start_idx, end_idx = trend[0], trend[1]
+            plot_idx = (start_idx + end_idx) // 2
+
+            plt.text(x.values[plot_idx],  signal.iloc[plot_idx]-5, "L",
                      bbox=dict(facecolor='green', alpha=0.5))
 
     @staticmethod
@@ -57,15 +59,18 @@ class PlotController:
         if last_series_type == 'last_min_idx':
             color = 'g'
             price = 'low'
+            label = 'last min price'
         elif last_series_type == 'last_max_idx':
             color = 'r'
             price = 'high'
+            label = 'last max price'
         else:
             raise ValueError("last_series_type need to be 'last_min_idx' or 'last_max_idx'!")
 
-        x = data["datetime"]
+        x = data["datetime"].apply(lambda datetime: datetime.strftime('%Y/%m/%d'))
         y = data[last_series_type].apply(lambda idx: data.iloc[int(idx), :][price])
-        ax.plot(x, y, color=color)
+        ax.plot(x, y, color=color, label=label)
+        PlotController.set_xticks(data, ax)
 
     @staticmethod
     def plot_one_bar(x, open, close, high, low, ax, trend):
@@ -74,7 +79,7 @@ class PlotController:
         elif trend == 'down':
             color = 'g'
         else:
-            raise ValueError('type only accept "up" or "down"!')
+            raise AttributeError('type only accept "up" or "down"!')
         upper, lower = (open, close) if open >= close else (close, open)
 
         ax.plot([x, x], [open, close], color=color, linewidth=2)
@@ -82,10 +87,27 @@ class PlotController:
         ax.plot([x, x], [upper, high], color='k', linewidth=0.5)
         ax.plot([x, x], [lower, low], color='k', linewidth=0.5)
 
+    @staticmethod
+    def plot_prices_bar(data: DataFrame, ax):
+        for bar_idx, row in data.iterrows():
+            x = row['datetime'].strftime('%Y/%m/%d')
+            open = row['open']
+            close = row['close']
+            high = row['high']
+            low = row['low']
+            trend = 'down' if open >= close else 'up'
+            PlotController.plot_one_bar(x, open, close, high, low, ax, trend)
+        PlotController.set_xticks(data, ax)
 
     @staticmethod
-    def show(block=True):
-        plt.xticks(rotation=45)
+    def set_xticks(data, ax, interval=20):
+        xlabels = data["datetime"][::interval].apply(lambda date: date.strftime("%Y/%m/%d"))
+        ax.set_xticks(range(0, len(data), interval))
+        ax.set_xticklabels(list(xlabels))
+
+    @staticmethod
+    def show(block=True, rotation=90):
+        plt.xticks(rotation=rotation)
         plt.legend(loc='best')
         plt.show(block=block)
 

@@ -118,8 +118,6 @@ class DataProcessController(object):
         print("before after index:\n", self._data.head())
 
 
-
-
     def add_datetime(self):
         self.data['datetime'] = self.data.apply(lambda d: datetime.strptime(d.date, self._date_format), axis=1)
 
