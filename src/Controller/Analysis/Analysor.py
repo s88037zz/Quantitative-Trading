@@ -88,8 +88,29 @@ class Analysor(metaclass=abc.ABCMeta):
             trends.append([start_idx, len(directions)])
         return trends
 
+    def get_highest(self, trend):
+        """
+        找到時間內max height
+        :param trend: list, [0]:  date start, [1]: date end
+        :return:  max high, relative index of high in time
+        """
+        data = self._data.iloc[trend[0]:trend[1], :]
+        highest_idx = np.argmax(data.high)
+        return data.high.iloc[highest_idx], highest_idx
 
+    def get_lowest(self, trend):
+        """
+        找到時間內min low
+        :param trend: list, [0]:  date start, [1]: date end
+        :return:  min low, relative index of low in time
+        """
+        data = self._data.iloc[trend[0]:trend[1], :]
+        lowest_idx = np.argmin(data.low)
+        return data.low.iloc[lowest_idx], lowest_idx
 
-
-
-
+    @staticmethod
+    def is_in_trend(bar_idx: int, trends: list):
+        for trend in trends:
+            if trend[0] <= bar_idx < trend[1]:
+                return True
+        return False

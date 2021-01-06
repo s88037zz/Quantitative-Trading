@@ -154,10 +154,12 @@ class DataProcessController(object):
     """
     def get_avg_by_date(self, date, delta):
         date_index = int(np.where(self.data.date == date)[0][0])
-        if delta > len(self.data) - date_index:
-            delta = len(self.data) - date_index
+        if delta > date_index+1:
+            print('Not satisfied to {}, so only count past {} day'.format(delta, date_index+1))
+            data = self.data.iloc[0: date_index+1, :]
+        else:
+            data = self.data.iloc[date_index: date_index+delta, :]
 
-        data = self.data.iloc[date_index: date_index+delta, :]
         avg_open = np.average(data.open)
         avg_close = np.average(data.close)
         return avg_open, avg_close

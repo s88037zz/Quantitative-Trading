@@ -32,6 +32,12 @@ class PlotController:
         ax.plot(x, macd, label=macd_key)
 
     @staticmethod
+    def plot_min_max(data: DataFrame, ax):
+        x = data["datetime"].apply(lambda date: date.strftime("%Y/%m/%d"))
+        y = data["min_max"]
+        ax.plot(x, y, label="min max value")
+
+    @staticmethod
     def plot_up_down_trend(data: DataFrame, signal_key: str, macd_key: str,
                            up_trends: list, down_trends: list):
         signal = data[signal_key]
@@ -114,6 +120,7 @@ class PlotController:
     @staticmethod
     def close(fig=None):
         plt.close(fig=fig)
+
 
 if __name__ == '__main__':
     # Init

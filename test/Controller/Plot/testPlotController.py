@@ -13,6 +13,8 @@ class TestPlotController(unittest.TestCase):
         self.macd_key = '26MA'
         self.aott = AutomaticOneTwoThree(self.dp_ctl.data, "2020/01/06", "2020/12/31",
                                          signal_key=self.signal_key, macd_key=self.macd_key)
+        self.aott.analysis()
+
         self.pc_ctl = PlotController()
 
     def testCreateFigure(self):
@@ -35,19 +37,24 @@ class TestPlotController(unittest.TestCase):
         self.pc_ctl.show()
 
     def testPlotMinMaxSeparatelyBar(self):
-        self.aott.analysis()
         fig, ax = PlotController.create_figure(xlabel='Date', ylabel='Price', title='Signal & MACD Direction')
         self.pc_ctl.plot_last_min_max_bar(self.aott.data, 'last_min_idx', ax)
         self.pc_ctl.plot_last_min_max_bar(self.aott.data, 'last_max_idx', ax)
         self.pc_ctl.show()
 
+    def testPLotMinMaxValueBar(self):
+        fig, ax = PlotController.create_figure(xlabel='Date', ylabel='Price', title='Min Max Value')
+        self.pc_ctl.plot_min_max(self.aott.data, ax)
+        self.pc_ctl.show()
+
     def testIntegratePlot(self):
-        self.aott.analysis()
         fig, ax = PlotController.create_figure(xlabel='Date', ylabel='Price', title='Signal & MACD Integration Plot')
         self.pc_ctl.plot_prices_trend(self.aott.data, self.signal_key, self.macd_key, ax)
         self.pc_ctl.plot_prices_bar(self.aott.data, ax)
-        self.pc_ctl.plot_last_min_max_bar(self.aott.data, 'last_min_idx', ax)
-        self.pc_ctl.plot_last_min_max_bar(self.aott.data, 'last_max_idx', ax)
+        self.pc_ctl.plot_min_max(self.aott.data, ax)
+        # self.pc_ctl.plot_last_min_max_bar(self.aott.data, 'last_min_idx', ax)
+        # self.pc_ctl.plot_last_min_max_bar(self.aott.data, 'last_max_idx', ax)
+
         self.pc_ctl.show()
 
     def testPlotOneBar(self):

@@ -21,6 +21,7 @@ class AutomaticOneTwoThree(Analysor):
         self.temp_min_idx = 0
         self.temp_max_idx = 0
 
+        self.min_max = []
         self.init_data_and_property()
 
     @property
@@ -61,6 +62,8 @@ class AutomaticOneTwoThree(Analysor):
 
             self._status = np.array(self.directions) * np.array(self._exceptions)
             print('\n\n\n')
+        self.existence_min_max_process()
+        self.data["min_max"] = self.min_max
 
     def init_data_and_property(self):
         self.sorted_by_time_series()
@@ -104,28 +107,6 @@ class AutomaticOneTwoThree(Analysor):
         self._down_trends = down_trends
         self._trends = trends
 
-    def get_highest(self, trend):
-        """
-        找到時間內max height
-        :param trend: list, [0]:  date start, [1]: date end
-        :return:  max high, relative index of high in time
-        """
-        data = self.data.iloc[trend[0]:trend[1], :]
-        # print("data(high):\n", data.high)
-        highest_idx = np.argmax(data.high)
-        return data.high.iloc[highest_idx], highest_idx
-
-    def get_lowest(self, trend):
-        """
-        找到時間內min low
-        :param trend: list, [0]:  date start, [1]: date end
-        :return:  min low, relative index of low in time
-        """
-        data = self.data.iloc[trend[0]:trend[1], :]
-        #print("data(low):\n", data.low)
-        lowest_idx = np.argmin(data.low)
-        return data.low.iloc[lowest_idx], lowest_idx
-
     def get_trend_idx(self, bar_idx):
         for index, trend in enumerate(self.trends):
             if trend[0] <= bar_idx <= trend[1]:
@@ -135,22 +116,6 @@ class AutomaticOneTwoThree(Analysor):
     def init_min_max_process(self, bar_idx):
         trend_idx = self.get_trend_idx(bar_idx)
         directions = self.data.direction.values
-        # period of lowest low in previous trend when trend status from -1,0 to 1.
-        # 初始得最低點是在一時間內(startBarIndex, endBarIndex)出現最低點
-        # self.trends[trend_idx-1][0] 區間的開始
-        print('Index: {}, direction[0]:{}, direction[1]:{}'.format(bar_idx, directions[bar_idx], directions[bar_idx - 1]))
-        if directions[bar_idx] == 1 and (directions[bar_idx - 1] == 0 or directions[bar_idx - 1] == -1):
-            lowest_bar, lowest_bar_idx = self.get_lowest([0, self.trends[trend_idx][1]])
-            self.last_min_idx = lowest_bar_idx
-            print(" Settle last min is {}(idx: {}) when {}".format(
-                self.data.iloc[self.last_min_idx, :]["date"], lowest_bar_idx,
-                self.data.iloc[bar_idx, :]['date']
-            ))
-        else:
-            print(" Init last min is {} when {}".format(
-                self.data.iloc[self.last_min_idx, :]["date"],
-                self.data.iloc[bar_idx, :]['date']
-            ))
 
         # period of highest high in previous trend when trend status from 1, 0 to -1.
         # 初始得最低點是在一時間內(startBarIndex, endBarIndex)出現最高點
@@ -165,6 +130,23 @@ class AutomaticOneTwoThree(Analysor):
         else:
             print(" Init last max is {} when {}".format(
                 self.data.iloc[self.last_max_idx, :]["date"],
+                self.data.iloc[bar_idx, :]['date']
+            ))
+
+        # period of lowest low in previous trend when trend status from -1,0 to 1.
+        # 初始得最低點是在一時間內(startBarIndex, endBarIndex)出現最低點
+        # self.trends[trend_idx-1][0] 區間的開始
+        print('Index: {}, direction[0]:{}, direction[1]:{}'.format(bar_idx, directions[bar_idx], directions[bar_idx - 1]))
+        if directions[bar_idx] == 1 and (directions[bar_idx - 1] == 0 or directions[bar_idx - 1] == -1):
+            lowest_bar, lowest_bar_idx = self.get_lowest([0, self.trends[trend_idx][1]])
+            self.last_min_idx = lowest_bar_idx
+            print(" Settle last min is {}(idx: {}) when {}".format(
+                self.data.iloc[self.last_min_idx, :]["date"], lowest_bar_idx,
+                self.data.iloc[bar_idx, :]['date']
+            ))
+        else:
+            print(" Init last min is {} when {}".format(
+                self.data.iloc[self.last_min_idx, :]["date"],
                 self.data.iloc[bar_idx, :]['date']
             ))
 
@@ -239,21 +221,49 @@ class AutomaticOneTwoThree(Analysor):
             else:
                 self._exceptions[bar_idx] = 1
 
+    def merge_last_min_max(self):
+        last_min_unique = self.data.last_min_idx.unique()
+        last_max_unique = self.data.last_max_idx.unique()
+        merged = np.concatenate((last_min_unique, last_max_unique), axis=0)
+        merged = np.unique(merged)
+        return sorted(merged)
+
+    def existence_min_max_process(self):
+        def get_bar_min_max(bar_idx: int, last_min_max: list):
+            for pre_min_max_idx, post_min_max_idx in zip(last_min_max[:-1],
+                                                 last_min_max[1:]):
+                if pre_min_max_idx <= bar_idx < post_min_max_idx:
+                    return post_min_max_idx
+            return last_min_max[-1]
+        merge_last_min_max = self.merge_last_min_max()
+        for idx, row in self.data.iterrows():
+            min_max_idx = int(get_bar_min_max(idx, merge_last_min_max))
+            col = 'low' if min_max_idx in self.data.last_min_idx.unique() else 'high'
+            self.min_max.append(self.data.iloc[min_max_idx, :][col])
+
+
+
+
 if __name__ == '__main__':
     from src.Controller.Process.DataProcessController import DataProcessController
     import os
 
-    path = os.path.join('..', '..', '..', 'data', 'SPY歷史資料after-2010.csv')
+    path = os.path.join('..', '..', '..', 'data', 'SPY歷史資料2020.csv')
     print(os.path.abspath(path))
+
     dp_ctl = DataProcessController()
     dp_ctl.process(path, 'csv')
+
     print("After processing:\n", dp_ctl.data.head())
     aott = AutomaticOneTwoThree(dp_ctl.data,
-                                start_date='2017/01/01',
-                                end_date='2017/12/31',
+                                start_date='2020/01/06',
+                                end_date='2020/12/31',
                                 signal_key='12MA',
                                 macd_key='26MA')
 
     aott.analysis()
     print(aott.data.head())
+
+    print("last min bar (unique)", aott.data.last_min_idx.unique())
+    print("last max bar (unique)", aott.data.last_max_idx.unique())
 
