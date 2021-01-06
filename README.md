@@ -9,6 +9,10 @@ https://www.tandfonline.com/doi/full/10.1080/14697688.2013.814922
 * 爬蟲： 利用webdriver，從網路上抓取自動更新S&P500的資料
 * 視覺化： 利用matlabplot等視覺化工具，畫出出買賣的訊號點
 
+## Automatic One Two Three Flow Chart
+![](https://i.imgur.com/ThfSwnj.png)
+
+
 ## SPY股價視覺化
 ![](https://i.imgur.com/NWnSVgh.png)
 
@@ -17,3 +21,4 @@ https://www.tandfonline.com/doi/full/10.1080/14697688.2013.814922
 
 ## SPY分析
 ![](https://i.imgur.com/3gUdqrW.png)
+
