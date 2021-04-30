@@ -202,7 +202,7 @@ regex @ file:///opt/concourse/worker/volumes/live/cba3b336-098a-44e5-4877-7dbac8
 requests @ file:///tmp/build/80754af9/requests_1592841827918/work
 requests2==2.16.0
 rope==0.17.0
-rsa==4.6
+rsa==4.7
 Rtree==0.9.4
 ruamel-yaml==0.15.87
 scikit-image==0.16.2
