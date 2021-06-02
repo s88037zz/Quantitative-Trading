@@ -244,7 +244,7 @@ typing-extensions @ file:///tmp/build/80754af9/typing_extensions_1598376058250/w
 ujson @ file:///opt/concourse/worker/volumes/live/c14e5326-4c52-4357-4185-2ff280ea1fd0/volume/ujson_1600709339307/work
 unicodecsv==0.14.1
 uritemplate==3.0.1
-urllib3==1.21.1
+urllib3==1.26.5
 watchdog @ file:///opt/concourse/worker/volumes/live/cc0ee7bb-1065-44c4-5867-0fd5d13729e0/volume/watchdog_1593447373245/work
 wcwidth @ file:///tmp/build/80754af9/wcwidth_1593447189090/work
 webencodings==0.5.1
